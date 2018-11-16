@@ -101,7 +101,7 @@ echo $PRIVATE_IP_ADDRESS $POD_CIDR
 
 az network route-table create -g $RGNAME -n kubernetes-routes
 az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
-az network route-table route create -g $RGNAME -n kubernetes-route-10-200-1-0-24 --route-table-name kubernetes-routes --address-prefix 10.200.1.0/24 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
+az network route-table route create -g $RGNAME -n kubernetes-route-10-200-1-0-24 --route-table-name kubernetes-routes --address-prefix 10.200.4.0/24 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
 
 
 # Create the /etc/kubernetes/azure.json
