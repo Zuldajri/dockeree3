@@ -20,6 +20,12 @@ DTR_PUBLIC_FQDN=$6
 UCP_ADMIN_USERID=$7
 UCP_ADMIN_PASSWORD=$8
 DOCKEREE_DOWNLOAD_URL=$9
+AZURE_CLIENT_ID=${10}
+AZURE_TENANT_ID=${11}
+AZURE_SUBSCRIPTION_ID=${12}
+AZURE_CLIENT_SECRET="${13}"
+LOCATION=${14}
+RGNAME=${15}
 
 eval HOST_IP_ADDRESS=$(ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
 
@@ -30,11 +36,13 @@ install_docker()
 
 # UBUNTU
 
-sudo apt-get install -y apt-transport-https curl software-properties-common
+sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 curl -fsSL ${DOCKEREE_DOWNLOAD_URL}/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] ${DOCKEREE_DOWNLOAD_URL}/ubuntu $(lsb_release -cs) stable-17.06"
+sudo apt-key fingerprint 6D085F96
+sudo add-apt-repository "deb [arch=amd64] ${DOCKEREE_DOWNLOAD_URL}/ubuntu $(lsb_release -cs) stable-18.09"
 sudo apt-get update -y
-sudo apt-get install -y docker-ee=3:18.03.1~ee~2~3-0~ubuntu
+sudo apt-get install -y docker-ee=5:18.09.0~3-0~ubuntu-xenial
+
 
 # Post Installation configuration (all Linux distros)
 
@@ -48,10 +56,109 @@ systemctl start docker
 
 install_docker;
 
+# Create the docker_subscription.lic
 touch /home/$UCP_ADMIN_USERID/docker_subscription.lic
 echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
+
+# Create the azure_ucp_admin.toml
+docker swarm init
+touch /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_CLIENT_ID = "$AZURE_CLIENT_ID" > /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_TENANT_ID = "$AZURE_TENANT_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_SUBSCRIPTION_ID = "$AZURE_SUBSCRIPTION_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_CLIENT_SECRET = "$AZURE_CLIENT_SECRET" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+
+# Create the Secret and the Service
+docker secret create azure_ucp_admin.toml /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+
+docker service create \
+  --mode=global \
+  --secret=azure_ucp_admin.toml \
+  --log-driver json-file \
+  --log-opt max-size=1m \
+  --env IP_COUNT=128 \
+  --name ipallocator \
+  --constraint "node.platform.os == linux" \
+docker4x/az-nic-ips
+
+# Azure - GET PODCIDR & Set up Route Table
+AZ_REPO=$(lsb_release -cs)
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+sudo apt-key --keyring /etc/apt/trusted.gpg.d/Microsoft.gpg adv --keyserver packages.microsoft.com --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
+sudo apt-get update
+sudo apt-get install azure-cli
+
+az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+az resource tag --tags pod-cidr=10.180.4.0/10 -g $RGNAME -n linuxWorker1 --resource-type "Microsoft.Compute/virtualMachines"
+az resource tag --tags pod-cidr=10.180.5.0/10 -g $RGNAME -n linuxWorker2 --resource-type "Microsoft.Compute/virtualMachines"
+az resource tag --tags pod-cidr=10.180.6.0/10 -g $RGNAME -n linuxWorker3 --resource-type "Microsoft.Compute/virtualMachines"
+
+PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
+POD_CIDR=$(az vm show -g $RGNAME --name linuxWorker1 --query "tags" -o tsv)
+echo $PRIVATE_IP_ADDRESS $POD_CIDR
+
+az network route-table create -g $RGNAME -n kubernetes-routes
+az network vnet subnet update -g $RGNAME -n linuxworkers --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
+az network route-table route create -g $RGNAME -n kubernetes-route-10.180.4.10 --route-table-name kubernetes-routes --address-prefix $POD_CIDR --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
+
+
+# Create the /etc/kubernetes/azure.json
+sudo mkdir /etc/kubernetes
+touch /home/$UCP_ADMIN_USERID/azure.json
+echo { > /home/$UCP_ADMIN_USERID/azure.json
+echo "cloud": "AzurePublicCloud", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "tenantId": "$AZURE_TENANT_ID", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "subscriptionId": "$AZURE_SUBSCRIPTION_ID", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "aadClientId": "$AZURE_CLIENT_ID", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "aadClientSecret": "$AZURE_CLIENT_SECRET", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "resourceGroup": "$RGNAME", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "location": "$LOCATION", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "subnetName": "ucp", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "securityGroupName": "ucpManager-nsg", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "vnetName": "clusterVirtualNetwork", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "routeTableName": "kubernetes-route-10.180.4.10", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "primaryAvailabilitySetName": "ucpAvailabilitySet", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoff": false >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoffRetries": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoffExponent": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoffDuration": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoffJitter": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderRatelimit": false, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderRateLimitQPS": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderRateLimitBucket": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "useManagedIdentityExtension": false, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "useInstanceMetadata": false >> /home/$UCP_ADMIN_USERID/azure.json
+echo } >> /home/$UCP_ADMIN_USERID/azure.json
+
+sudo mv /home/$UCP_ADMIN_USERID/azure.json /etc/kubernetes/
+
+#Firewalling
+sudo ufw allow 179/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 2376/tcp
+sudo ufw allow 2377/tcp
+sudo ufw allow 4789/udp
+sudo ufw allow 6443/tcp
+sudo ufw allow 6444/tcp
+sudo ufw allow 7946/udp
+sudo ufw allow 7946/tcp
+sudo ufw allow 10250/tcp
+sudo ufw allow 12376/tcp
+sudo ufw allow 12378/tcp
+sudo ufw allow 12379/tcp
+sudo ufw allow 12380/tcp
+sudo ufw allow 12381/tcp
+sudo ufw allow 12382/tcp
+sudo ufw allow 12383/tcp
+sudo ufw allow 12384/tcp
+sudo ufw allow 12385/tcp
+sudo ufw allow 12386/tcp
+sudo ufw allow 12387/tcp
+sudo ufw allow 12388/tcp
+
+
 
 # Split the UCP FQDN et get the SAN and the port
 
@@ -70,20 +177,22 @@ echo "UCP_PORT=$UCP_PORT"
 
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    docker/ucp:3.0.6 install \
+    docker/ucp:3.1.0 install \
     --controller-port $UCP_PORT \
-    --host-address eth0 \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
+    --swarm-port 3376 \
+    --pod-cidr $POD_CIDR \
+    --cloud-provider Azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
 
 # Add the Azure Storage Volume Driver
 
 docker plugin install --alias cloudstor:azure \
-  --grant-all-permissions docker4x/cloudstor:17.06.1-ce-azure1  \
+  --grant-all-permissions docker4x/cloudstor:18.06.1-ce-azure1  \
   CLOUD_PLATFORM=AZURE \
   AZURE_STORAGE_ACCOUNT_KEY=$AZURE_STORAGE_ACCOUNT_KEY \
   AZURE_STORAGE_ACCOUNT=$AZURE_STORAGE_ACCOUNT_NAME \
