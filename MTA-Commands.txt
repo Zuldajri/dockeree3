@@ -1,0 +1,22 @@
+VHD example
+
+https://drive.google.com/uc?export=download&id=0ByQd4O58ibOES0VCbjNxTTk5LUU
+
+Install-Module -Name Image2Docker -RequiredVersion 1.8.2 -Force
+Import-Module -Name Image2Docker -RequiredVersion 1.8.2 -Force
+
+Set-Location-Path C:\Users\Default\Desktop
+ 
+docker images
+  ConvertTo-Dockerfile -ImagePath .\ws2016.vhd -Artifact IIS -OutputPath .\windowsapp -Verbose
+
+Set-Location-Path C:\Users\Default\Desktop\windowsapp
+
+ Create a repository on the DTR   "dtruri".westeurope.cloudapp.azure.com/ ... "user" ... windowsapp
+
+  docker build -t "dtruri"."region".cloudapp.azure.com/user/windowsapp .
+  docker login "dtruri"."region".cloudapp.azure.com
+
+ 
+
+  docker push "dtruri"."region".cloudapp.azure.com/"user"/windowsapp
