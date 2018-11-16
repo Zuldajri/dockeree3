@@ -118,7 +118,7 @@ echo "location": "$LOCATION", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "subnetName": "docker", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "securityGroupName": "ucpManager-nsg", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "vnetName": "clusterVirtualNetwork", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "routeTableName": "kubernetes-route-10.180.4.10", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "routeTableName": "kubernetes-route-10-200-1-0-24", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "primaryAvailabilitySetName": "ucpAvailabilitySet", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoff": false >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoffRetries": 0, >> /home/$UCP_ADMIN_USERID/azure.json
