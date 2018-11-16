@@ -91,9 +91,9 @@ sudo apt-get update
 sudo apt-get install azure-cli
 
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-az resource tag --tags pod-cidr=10.200.1.0/24 -g $RGNAME -n linuxWorker1 --resource-type "Microsoft.Compute/virtualMachines"
-az resource tag --tags pod-cidr=10.200.2.0/24 -g $RGNAME -n linuxWorker2 --resource-type "Microsoft.Compute/virtualMachines"
-az resource tag --tags pod-cidr=10.200.3.0/24 -g $RGNAME -n linuxWorker3 --resource-type "Microsoft.Compute/virtualMachines"
+az resource tag --tags pod-cidr=10.200.4.0/24 -g $RGNAME -n linuxWorker1 --resource-type "Microsoft.Compute/virtualMachines"
+az resource tag --tags pod-cidr=10.200.5.0/24 -g $RGNAME -n linuxWorker2 --resource-type "Microsoft.Compute/virtualMachines"
+az resource tag --tags pod-cidr=10.200.6.0/24 -g $RGNAME -n linuxWorker3 --resource-type "Microsoft.Compute/virtualMachines"
 
 PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
 POD_CIDR=$(az vm show -g $RGNAME --name linuxWorker1 --query "tags" -o tsv)
