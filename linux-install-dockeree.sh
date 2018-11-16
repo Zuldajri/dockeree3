@@ -41,6 +41,16 @@ sudo add-apt-repository "deb [arch=amd64] ${DOCKEREE_DOWNLOAD_URL}/ubuntu $(lsb_
 sudo apt-get update -y
 sudo apt-get install -y docker-ee=5:18.09.0~3-0~ubuntu-xenial
 
+#Firewalling
+sudo ufw allow 179/tcp
+sudo ufw allow 4789/udp
+sudo ufw allow 6444/tcp
+sudo ufw allow 7946/udp
+sudo ufw allow 7946/tcp
+sudo ufw allow 10250/tcp
+sudo ufw allow 12376/tcp
+sudo ufw allow 12378/tcp
+
 # Post Installation configuration (all Linux distros)
 
 groupadd docker
