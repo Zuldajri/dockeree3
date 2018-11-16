@@ -56,6 +56,16 @@ systemctl start docker
 
 install_docker;
 
+# Set the Kubernetes version as found in the UCP Dashboard or API
+k8sversion=v1.11.2
+# Get the kubectl binary.
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$k8sversion/bin/linux/amd64/kubectl
+# Make the kubectl binary executable.
+chmod +x ./kubectl
+# Move the kubectl executable to /usr/local/bin.
+sudo mv ./kubectl /usr/local/bin/kubectl
+
+
 # Create the docker_subscription.lic
 touch /home/$UCP_ADMIN_USERID/docker_subscription.lic
 echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
@@ -185,7 +195,6 @@ docker run --rm -i --name ucp \
     --admin-password $UCP_ADMIN_PASSWORD \
     --swarm-port 3376 \
     --pod-cidr $POD_CIDR \
-    --unmanaged-cni true \
     --cloud-provider Azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
