@@ -66,32 +66,77 @@ chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
 
 
+docker swarm init
+
 # Create the docker_subscription.lic
 touch /home/$UCP_ADMIN_USERID/docker_subscription.lic
 echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
-# Create the azure_ucp_admin.toml
-docker swarm init
-touch /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_CLIENT_ID = "$AZURE_CLIENT_ID" > /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_TENANT_ID = "$AZURE_TENANT_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_SUBSCRIPTION_ID = "$AZURE_SUBSCRIPTION_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_CLIENT_SECRET = "$AZURE_CLIENT_SECRET" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+# Install Azure Container Networking
 
-# Create the Secret and the Service
-docker secret create azure_ucp_admin.toml /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+PLUGIN_VERSION=v1.0.13
+CNI_VERSION=0.3.1
+CNI_BIN_DIR=/opt/cni/bin
+CNI_NETCONF_DIR=/etc/cni/net.d
 
-docker service create \
-  --mode=global \
-  --secret=azure_ucp_admin.toml \
-  --log-driver json-file \
-  --log-opt max-size=1m \
-  --env IP_COUNT=128 \
-  --name ipallocator \
-  --constraint "node.platform.os == linux" \
-docker4x/az-nic-ips
+function usage
+{
+    printf "Installs azure-vnet CNI plugins.\n"
+    printf "Usage: install-cni-plugin version [cniVersion]\n"
+}
+
+if [ "$PLUGIN_VERSION" = "" ]; then
+    usage
+    exit 1
+fi
+
+if [ "$CNI_VERSION" = "" ]; then
+    CNI_VERSION=v0.4.0
+fi
+
+# Create CNI directories.
+printf "Creating CNI directories.\n"
+mkdir -p $CNI_BIN_DIR
+mkdir -p $CNI_NETCONF_DIR
+
+# Install ebtables.
+if [ ! -e /sbin/ebtables ]
+then
+    printf "Installing ebtables package..."
+    apt-get update
+    apt-get install -y ebtables
+    printf "done.\n"
+else
+    echo "Package ebtables is already installed."
+fi
+/sbin/ebtables --list > /dev/null
+
+# Install azure-vnet CNI plugins.
+printf "Installing azure-vnet CNI plugin version $PLUGIN_VERSION to $CNI_BIN_DIR..."
+/usr/bin/curl -sSL https://github.com/Azure/azure-container-networking/releases/download/$PLUGIN_VERSION/azure-vnet-cni-linux-amd64-$PLUGIN_VERSION.tgz > $CNI_BIN_DIR/azure-vnet.tgz
+tar -xzf $CNI_BIN_DIR/azure-vnet.tgz -C $CNI_BIN_DIR
+printf "done.\n"
+
+# Install azure-vnet CNI network configuration file.
+printf "Installing azure-vnet CNI network configuration file to $CNI_NETCONF_DIR..."
+mv $CNI_BIN_DIR/*.conflist $CNI_NETCONF_DIR
+printf "done.\n"
+
+# Install loopback plugin.
+printf "Installing loopback CNI plugin version $CNI_VERSION to $CNI_BIN_DIR..."
+/usr/bin/curl -sSL https://github.com/containernetworking/cni/releases/download/$CNI_VERSION/cni-amd64-$CNI_VERSION.tgz > $CNI_BIN_DIR/cni.tgz
+tar -xzf $CNI_BIN_DIR/cni.tgz -C $CNI_BIN_DIR ./loopback
+printf "done.\n"
+
+# Cleanup.
+rm $CNI_BIN_DIR/*.tgz
+chown root:root $CNI_BIN_DIR/*
+
+printf "azure-vnet CNI plugin is successfully installed.\n"
+
+
 
 # Azure - GET PODCIDR & Set up Route Table
 AZ_REPO=$(lsb_release -cs)
