@@ -91,17 +91,17 @@ sudo apt-get update
 sudo apt-get install azure-cli
 
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-az resource tag --tags pod-cidr=10.180.4.0/10 -g $RGNAME -n linuxWorker1 --resource-type "Microsoft.Compute/virtualMachines"
-az resource tag --tags pod-cidr=10.180.5.0/10 -g $RGNAME -n linuxWorker2 --resource-type "Microsoft.Compute/virtualMachines"
-az resource tag --tags pod-cidr=10.180.6.0/10 -g $RGNAME -n linuxWorker3 --resource-type "Microsoft.Compute/virtualMachines"
+az resource tag --tags pod-cidr=10.200.1.0/24 -g $RGNAME -n linuxWorker1 --resource-type "Microsoft.Compute/virtualMachines"
+az resource tag --tags pod-cidr=10.200.2.0/24 -g $RGNAME -n linuxWorker2 --resource-type "Microsoft.Compute/virtualMachines"
+az resource tag --tags pod-cidr=10.200.3.0/24 -g $RGNAME -n linuxWorker3 --resource-type "Microsoft.Compute/virtualMachines"
 
 PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
 POD_CIDR=$(az vm show -g $RGNAME --name linuxWorker1 --query "tags" -o tsv)
 echo $PRIVATE_IP_ADDRESS $POD_CIDR
 
 az network route-table create -g $RGNAME -n kubernetes-routes
-az network vnet subnet update -g $RGNAME -n linuxworkers --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
-az network route-table route create -g $RGNAME -n kubernetes-route-10.180.4.10 --route-table-name kubernetes-routes --address-prefix 10.180.4.0/10 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
+az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
+az network route-table route create -g $RGNAME -n kubernetes-route-10-200-1-0-24 --route-table-name kubernetes-routes --address-prefix 10.200.1.0/24 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
 
 
 # Create the /etc/kubernetes/azure.json
@@ -115,7 +115,7 @@ echo "aadClientId": "$AZURE_CLIENT_ID", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "aadClientSecret": "$AZURE_CLIENT_SECRET", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "resourceGroup": "$RGNAME", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "location": "$LOCATION", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "subnetName": "ucp", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "subnetName": "docker", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "securityGroupName": "ucpManager-nsg", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "vnetName": "clusterVirtualNetwork", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "routeTableName": "kubernetes-route-10.180.4.10", >> /home/$UCP_ADMIN_USERID/azure.json
@@ -179,12 +179,13 @@ docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
     docker/ucp:3.1.0 install \
     --controller-port $UCP_PORT \
+     --host-address eth0 \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
     --swarm-port 3376 \
-    --pod-cidr 10.180.4.0/10 \
+    --pod-cidr $POD_CIDR \
     --cloud-provider Azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
