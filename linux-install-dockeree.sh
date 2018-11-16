@@ -34,11 +34,12 @@ install_docker()
 
 # UBUNTU
 
-sudo apt-get install -y apt-transport-https curl software-properties-common
+sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 curl -fsSL ${DOCKEREE_DOWNLOAD_URL}/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] ${DOCKEREE_DOWNLOAD_URL}/ubuntu $(lsb_release -cs) stable-17.06"
+sudo apt-key fingerprint 6D085F96
+sudo add-apt-repository "deb [arch=amd64] ${DOCKEREE_DOWNLOAD_URL}/ubuntu $(lsb_release -cs) stable-18.09"
 sudo apt-get update -y
-sudo apt-get install -y docker-ee=3:18.03.1~ee~2~3-0~ubuntu
+sudo apt-get install -y docker-ee=5:18.09.0~3-0~ubuntu-xenial
 
 # Post Installation configuration (all Linux distros)
 
