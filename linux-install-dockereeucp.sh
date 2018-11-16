@@ -194,9 +194,9 @@ docker run --rm -i --name ucp \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
     --swarm-port 3376 \
-    --unmanaged-cni false \
+    --unmanaged-cni true \
     --pod-cidr $POD_CIDR \
-    --cloud-provider Azure \
+    --cloud-provider azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
 
