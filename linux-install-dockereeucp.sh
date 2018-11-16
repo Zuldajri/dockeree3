@@ -101,7 +101,7 @@ echo $PRIVATE_IP_ADDRESS $POD_CIDR
 
 az network route-table create -g $RGNAME -n kubernetes-routes
 az network vnet subnet update -g $RGNAME -n linuxworkers --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
-az network route-table route create -g $RGNAME -n kubernetes-route-10.180.4.10 --route-table-name kubernetes-routes --address-prefix $POD_CIDR --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
+az network route-table route create -g $RGNAME -n kubernetes-route-10.180.4.10 --route-table-name kubernetes-routes --address-prefix 10.180.4.0/10 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
 
 
 # Create the /etc/kubernetes/azure.json
@@ -184,7 +184,7 @@ docker run --rm -i --name ucp \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
     --swarm-port 3376 \
-    --pod-cidr $POD_CIDR \
+    --pod-cidr 10.180.4.0/10 \
     --cloud-provider Azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
