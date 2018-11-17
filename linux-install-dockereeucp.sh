@@ -72,27 +72,6 @@ echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
-  
-# Azure - GET PODCIDR & Set up Route Table
-AZ_REPO=$(lsb_release -cs)
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-sudo apt-key --keyring /etc/apt/trusted.gpg.d/Microsoft.gpg adv --keyserver packages.microsoft.com --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
-sudo apt-get update
-sudo apt-get install azure-cli
-
-az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-az resource tag --tags pod-cidr=192.168.0.0/16 -g $RGNAME -n linuxWorker1 --resource-type "Microsoft.Compute/virtualMachines"
-az resource tag --tags pod-cidr=192.168.0.0/16 -g $RGNAME -n linuxWorker2 --resource-type "Microsoft.Compute/virtualMachines"
-az resource tag --tags pod-cidr=192.168.0.0/16 -g $RGNAME -n linuxWorker3 --resource-type "Microsoft.Compute/virtualMachines"
-
-PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
-POD_CIDR=192.168.0.0/16
-echo $PRIVATE_IP_ADDRESS $POD_CIDR
-
-az network route-table create -g $RGNAME -n kubernetes-routes
-az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
-az network route-table route create -g $RGNAME -n kubernetes-route-192-168-0-16 --route-table-name kubernetes-routes --address-prefix 192.168.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
-
 #Firewalling
 sudo ufw allow 179/tcp
 sudo ufw allow 443/tcp
