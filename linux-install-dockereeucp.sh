@@ -65,69 +65,6 @@ chmod +x ./kubectl
 # Move the kubectl executable to /usr/local/bin.
 sudo mv ./kubectl /usr/local/bin/kubectl
 
-# Install Azure Container Networking
-
-PLUGIN_VERSION=v1.0.13
-CNI_VERSION=v0.3.0
-CNI_BIN_DIR=/opt/cni/bin
-CNI_NETCONF_DIR=/etc/cni/net.d
-
-function usage
-{
-    printf "Installs azure-vnet CNI plugins.\n"
-    printf "Usage: install-cni-plugin version [cniVersion]\n"
-}
-
-if [ "$PLUGIN_VERSION" = "" ]; then
-    usage
-    exit 1
-fi
-
-if [ "$CNI_VERSION" = "" ]; then
-    CNI_VERSION=v0.4.0
-fi
-
-# Create CNI directories.
-printf "Creating CNI directories.\n"
-mkdir -p $CNI_BIN_DIR
-mkdir -p $CNI_NETCONF_DIR
-
-# Install ebtables.
-if [ ! -e /sbin/ebtables ]
-then
-    printf "Installing ebtables package..."
-    apt-get update
-    apt-get install -y ebtables
-    printf "done.\n"
-else
-    echo "Package ebtables is already installed."
-fi
-/sbin/ebtables --list > /dev/null
-
-# Install azure-vnet CNI plugins.
-printf "Installing azure-vnet CNI plugin version $PLUGIN_VERSION to $CNI_BIN_DIR..."
-/usr/bin/curl -sSL https://github.com/Azure/azure-container-networking/releases/download/$PLUGIN_VERSION/azure-vnet-cni-linux-amd64-$PLUGIN_VERSION.tgz > $CNI_BIN_DIR/azure-vnet.tgz
-tar -xzf $CNI_BIN_DIR/azure-vnet.tgz -C $CNI_BIN_DIR
-printf "done.\n"
-
-# Install azure-vnet CNI network configuration file.
-printf "Installing azure-vnet CNI network configuration file to $CNI_NETCONF_DIR..."
-mv $CNI_BIN_DIR/*.conflist $CNI_NETCONF_DIR
-printf "done.\n"
-
-# Install loopback plugin.
-printf "Installing loopback CNI plugin version $CNI_VERSION to $CNI_BIN_DIR..."
-/usr/bin/curl -sSL https://github.com/containernetworking/cni/releases/download/v0.3.0/cni-v0.3.0.tgz > $CNI_BIN_DIR/cni.tgz
-tar -xzf $CNI_BIN_DIR/cni.tgz -C $CNI_BIN_DIR ./loopback
-printf "done.\n"
-
-# Cleanup.
-rm $CNI_BIN_DIR/*.tgz
-chown root:root $CNI_BIN_DIR/*
-
-printf "azure-vnet CNI plugin is successfully installed.\n"
-
-docker swarm init
 
 # Create the docker_subscription.lic
 touch /home/$UCP_ADMIN_USERID/docker_subscription.lic
@@ -135,28 +72,6 @@ echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
-docker swarm init
-
-# Create the azure_ucp_admin.toml
-docker swarm init
-touch /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_CLIENT_ID = "$AZURE_CLIENT_ID" > /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_TENANT_ID = "$AZURE_TENANT_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_SUBSCRIPTION_ID = "$AZURE_SUBSCRIPTION_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_CLIENT_SECRET = "$AZURE_CLIENT_SECRET" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-
-# Create the Secret and the Service
-docker secret create azure_ucp_admin.toml /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-
-docker service create \
-  --mode=global \
-  --secret=azure_ucp_admin.toml \
-  --log-driver json-file \
-  --log-opt max-size=1m \
-  --env IP_COUNT=128 \
-  --name ipallocator \
-  --constraint "node.platform.os == linux" \
-  docker4x/az-nic-ips
   
 # Azure - GET PODCIDR & Set up Route Table
 AZ_REPO=$(lsb_release -cs)
@@ -177,37 +92,6 @@ echo $PRIVATE_IP_ADDRESS $POD_CIDR
 az network route-table create -g $RGNAME -n kubernetes-routes
 az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
 az network route-table route create -g $RGNAME -n kubernetes-route-192-168-0-16 --route-table-name kubernetes-routes --address-prefix 192.168.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
-
-
-# Create the /etc/kubernetes/azure.json
-sudo mkdir /etc/kubernetes
-touch /home/$UCP_ADMIN_USERID/azure.json
-echo { > /home/$UCP_ADMIN_USERID/azure.json
-echo "cloud": "AzurePublicCloud", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "tenantId": "$AZURE_TENANT_ID", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "subscriptionId": "$AZURE_SUBSCRIPTION_ID", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "aadClientId": "$AZURE_CLIENT_ID", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "aadClientSecret": "$AZURE_CLIENT_SECRET", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "resourceGroup": "$RGNAME", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "location": "$LOCATION", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "subnetName": "docker", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "securityGroupName": "ucpManager-nsg", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "vnetName": "clusterVirtualNetwork", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "routeTableName": "kubernetes-route-192-168-0-16", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "primaryAvailabilitySetName": "ucpAvailabilitySet", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "cloudProviderBackoff": false >> /home/$UCP_ADMIN_USERID/azure.json
-echo "cloudProviderBackoffRetries": 0, >> /home/$UCP_ADMIN_USERID/azure.json
-echo "cloudProviderBackoffExponent": 0, >> /home/$UCP_ADMIN_USERID/azure.json
-echo "cloudProviderBackoffDuration": 0, >> /home/$UCP_ADMIN_USERID/azure.json
-echo "cloudProviderBackoffJitter": 0, >> /home/$UCP_ADMIN_USERID/azure.json
-echo "cloudProviderRatelimit": false, >> /home/$UCP_ADMIN_USERID/azure.json
-echo "cloudProviderRateLimitQPS": 0, >> /home/$UCP_ADMIN_USERID/azure.json
-echo "cloudProviderRateLimitBucket": 0, >> /home/$UCP_ADMIN_USERID/azure.json
-echo "useManagedIdentityExtension": false, >> /home/$UCP_ADMIN_USERID/azure.json
-echo "useInstanceMetadata": false >> /home/$UCP_ADMIN_USERID/azure.json
-echo } >> /home/$UCP_ADMIN_USERID/azure.json
-
-sudo mv /home/$UCP_ADMIN_USERID/azure.json /etc/kubernetes/
 
 #Firewalling
 sudo ufw allow 179/tcp
@@ -252,16 +136,14 @@ echo "UCP_PORT=$UCP_PORT"
 
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    docker/ucp:3.1.0 install \
+    docker/ucp:3.0.6 install \
     --controller-port $UCP_PORT \
+    --host-address eth0 \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
-    --swarm-port 2376 \
-    --pod-cidr $POD_CIDR \
     --cloud-provider azure \
-    --unmanaged-cni true \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
 
