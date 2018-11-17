@@ -137,7 +137,27 @@ chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 docker swarm init
 
+# Create the azure_ucp_admin.toml
+docker swarm init
+touch /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_CLIENT_ID = "$AZURE_CLIENT_ID" > /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_TENANT_ID = "$AZURE_TENANT_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_SUBSCRIPTION_ID = "$AZURE_SUBSCRIPTION_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_CLIENT_SECRET = "$AZURE_CLIENT_SECRET" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
 
+# Create the Secret and the Service
+docker secret create azure_ucp_admin.toml /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+
+docker service create \
+  --mode=global \
+  --secret=azure_ucp_admin.toml \
+  --log-driver json-file \
+  --log-opt max-size=1m \
+  --env IP_COUNT=128 \
+  --name ipallocator \
+  --constraint "node.platform.os == linux" \
+  docker4x/az-nic-ips
+  
 # Azure - GET PODCIDR & Set up Route Table
 AZ_REPO=$(lsb_release -cs)
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
