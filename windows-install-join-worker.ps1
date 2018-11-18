@@ -28,12 +28,11 @@ function Install-LatestDockerEngine () {
 
     #Get Docker Engine
 
-    Expand-Archive docker.zip -DestinationPath $env:ProgramFiles -Force
-    $env:path +=";$env:ProgramFIles\docker"
-    
+    Expand-Archive -Path docker.zip -Force
+
     #Replace Docker Engine
-
-
+    Copy-Item ".\docker\docker\dockerd.exe" "$DockerPath\dockerd.exe" -Force
+    Copy-Item ".\docker\docker\docker.exe" "$DockerPath\docker.exe" -Force
     Start-Service docker
 
 }
