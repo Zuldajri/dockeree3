@@ -23,18 +23,17 @@ $UserDesktopPath = "C:\Users\Default\Desktop"
 function Install-LatestDockerEngine () {
 
     #Get Docker Engine from Master Builds
-
+    Stop-Service docker
     Invoke-WebRequest -UseBasicparsing -Uri $DockerEngineURI -OutFile docker.zip
 
     #Get Docker Engine
 
-    Expand-Archive -Path docker.zip -Force
-
+    Expand-Archive docker.zip -DestinationPath $env:ProgramFiles -Force
+    $env:path +=";$env:ProgramFIles\docker
+    
     #Replace Docker Engine
 
-    Stop-Service docker
-    Copy-Item ".\docker\docker\dockerd.exe" "$DockerPath\dockerd.exe" -Force
-    Copy-Item ".\docker\docker\docker.exe" "$DockerPath\docker.exe" -Force
+
     Start-Service docker
 
 }
