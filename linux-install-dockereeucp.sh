@@ -153,5 +153,18 @@ docker plugin install --alias cloudstor:azure \
   AZURE_STORAGE_ACCOUNT=$AZURE_STORAGE_ACCOUNT_NAME \
   AZURE_STORAGE_ENDPOINT="core.windows.net" \
   DEBUG=1
+  
+# UBUNTU
+
+apt-get install jq unzip -y
+
+# Retrieve and extract the Auth Token for the current user
+
+AUTHTOKEN=$(curl -sk -d '{"username":"'"$UCP_ADMIN_USERID"'","password":"'"$UCP_ADMIN_PASSWORD"'"}' https://$UCP_PUBLIC_FQDN/auth/login | jq -r .auth_token)
+echo "AUTH TOKEN IS : $AUTHTOKEN"
+
+# Download the user client bundle to extract the certificate and configure the cli for the swarm to join
+
+curl -k -H "Authorization: Bearer ${AUTHTOKEN}" https://$UCP_PUBLIC_FQDN/api/clientbundle -o /home/$UCP_ADMIN_USERID/bundle.zip
 
 echo $(date) " linux-install-ucp - End of Script"
