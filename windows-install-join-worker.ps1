@@ -29,7 +29,7 @@ function Install-LatestDockerEngine () {
     #Get Docker Engine
 
     Expand-Archive docker.zip -DestinationPath $env:ProgramFiles -Force
-    $env:path +=";$env:ProgramFIles\docker
+    $env:path +=";$env:ProgramFIles\docker"
     
     #Replace Docker Engine
 
