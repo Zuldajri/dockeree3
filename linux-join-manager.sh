@@ -26,15 +26,9 @@ echo "UCP_ADMIN_PASSWORD=<Not Copied for obvious security reasons"
 
 apt-get install jq unzip -y
 
-# Retrieve and extract the Auth Token for the current user
-
-AUTHTOKEN=$(curl -sk -d '{"username":"'"$UCP_ADMIN_USERID"'","password":"'"$UCP_ADMIN_PASSWORD"'"}' https://$UCP_PUBLIC_FQDN/auth/login | jq -r .auth_token)
-echo "AUTH TOKEN IS : $AUTHTOKEN"
 
 # Download the user client bundle to extract the certificate and configure the cli for the swarm to join
-
-curl -k -H "Authorization: Bearer ${AUTHTOKEN}" https://$UCP_PUBLIC_FQDN/api/clientbundle -o bundle.zip
-unzip bundle.zip && chmod +x env.sh && source env.sh
+unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /home/$UCP_ADMIN_USERID/env.sh && source /home/$UCP_ADMIN_USERID/env.sh
 
 # Ask the UCP Controller to give us the docker join command to execute
 
