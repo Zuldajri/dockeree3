@@ -23,9 +23,13 @@ echo "UCP_ADMIN_PASSWORD=<Not Copied for obvious security reasons"
 #yum install -y jq-1.5-1.el7.x86_64.rpm
 
 # UBUNTU
-
 apt-get install jq unzip -y
 
+# Install sshpass
+sudo apt-get install sshpass
+
+# Send bundle.zip
+sudo sshpass -p $UCP_ADMIN_PASSWORD scp $UCP_ADMIN_USERID@10.0.1.4:/home/$UCP_ADMIN_USERID/bundle.zip /home/$UCP_ADMIN_USERID/bundle.zip 
 
 # Download the user client bundle to extract the certificate and configure the cli for the swarm to join
 unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /home/$UCP_ADMIN_USERID/env.sh && source /home/$UCP_ADMIN_USERID/env.sh
