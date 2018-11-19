@@ -32,7 +32,7 @@ sudo apt-get install sshpass
 sudo sshpass -p $UCP_ADMIN_PASSWORD scp -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4:/home/$UCP_ADMIN_USERID/bundle.zip /home/$UCP_ADMIN_USERID/bundle.zip 
 
 # Download the user client bundle to extract the certificate and configure the cli for the swarm to join
-unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /home/$UCP_ADMIN_USERID/env.sh && source /home/$UCP_ADMIN_USERID/env.sh
+unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x env.sh && source env.sh
 
 # Ask the UCP Controller to give us the docker join command to execute
 
