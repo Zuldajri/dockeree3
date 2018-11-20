@@ -32,18 +32,18 @@ sudo apt-get install sshpass
 sudo sshpass -p $UCP_ADMIN_PASSWORD scp -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4:/home/$UCP_ADMIN_USERID/bundle.zip /home/$UCP_ADMIN_USERID/bundle.zip 
 
 # Download the user client bundle to extract the certificate and configure the cli for the swarm to join
-unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x env.sh && source env.sh
+unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /var/lib/waagent/custom-script/download/0/env.sh && source /var/lib/waagent/custom-script/download/0/env.sh
 
 # Ask the UCP Controller to give us the docker join command to execute
 
-docker swarm join-token manager|sed '1d'|sed '1d'|sed '$ d'> ./docker-managerswarmjoin
+docker swarm join-token manager|sed '1d'|sed '1d'|sed '$ d'> /var/lib/waagent/custom-script/download/0/docker-managerswarmjoin
 unset DOCKER_TLS_VERIFY
 unset DOCKER_CERT_PATH
 unset DOCKER_HOST
 
 # Execute the join
 
-chmod +x ./docker-managerswarmjoin
-./docker-managerswarmjoin
+chmod +x /var/lib/waagent/custom-script/download/0/docker-managerswarmjoin
+/var/lib/waagent/custom-script/download/0/docker-managerswarmjoin
 
 echo $(date) "linux-join-swarm - End of Script"
