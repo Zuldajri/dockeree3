@@ -184,5 +184,7 @@ unzip /home/$UCP_ADMIN_USERID/bundle.zip -d /home/$UCP_ADMIN_USERID/  && chmod +
 kubectl create -f https://raw.githubusercontent.com/Zuldajri/DockerEE/master/nfs-server.yaml
 sleep 30s
 
+IP=$(kubectl describe pod nfs-server | grep IP: | awk 'NR==1 {print $2}')
+
 
 echo $(date) " linux-install-ucp - End of Script"
