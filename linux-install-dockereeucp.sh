@@ -154,6 +154,20 @@ docker plugin install --alias cloudstor:azure \
   AZURE_STORAGE_ENDPOINT="core.windows.net" \
   DEBUG=1
   
+# Get the UCP_ID
+UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
+
+# Upgrade UCP to 3.1.0
+docker run --rm -i --name ucp \
+-v /var/run/docker.sock:/var/run/docker.sock \
+docker/ucp:3.1.0 upgrade \
+--host-address eth0 \
+--id $UCP_ID \
+--admin-username $UCP_ADMIN_USERID \
+--admin-password $UCP_ADMIN_PASSWORD \
+--debug
+
+
 # UBUNTU
 
 apt-get install jq unzip -y
