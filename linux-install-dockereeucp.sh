@@ -186,5 +186,6 @@ sleep 30s
 
 IP=$(kubectl describe pod nfs-server | grep IP: | awk 'NR==1 {print $2}')
 
+wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.yaml -O /home/$UCP_ADMIN_USERID/default-storage.yaml
 
 echo $(date) " linux-install-ucp - End of Script"
