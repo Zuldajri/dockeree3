@@ -182,7 +182,7 @@ echo "AUTH TOKEN IS : $AUTHTOKEN"
 curl -k -H "Authorization: Bearer ${AUTHTOKEN}" https://$UCP_PUBLIC_FQDN/api/clientbundle -o /home/$UCP_ADMIN_USERID/bundle.zip
 unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /var/lib/waagent/custom-script/download/0/env.sh && source /var/lib/waagent/custom-script/download/0/env.sh
 kubectl create -f https://raw.githubusercontent.com/Zuldajri/DockerEE/master/nfs-server.yaml
-sleep 1m
+sleep 2m
 
 IP=$(kubectl describe pod nfs-server | grep IP: | awk 'NR==1 {print $2}')
 
