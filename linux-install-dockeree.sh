@@ -42,6 +42,7 @@ sudo apt-get update -y
 sudo apt-get install -y docker-ee=5:18.09.0~3-0~ubuntu-xenial
 
 #Firewalling
+sudo ufw allow 80/tcp
 sudo ufw allow 179/tcp
 sudo ufw allow 4789/udp
 sudo ufw allow 6444/tcp
