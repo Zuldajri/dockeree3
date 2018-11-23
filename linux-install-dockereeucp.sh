@@ -183,7 +183,6 @@ docker run --rm -i --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
 docker/ucp:3.1.0 upgrade \
 --id $UCP_ID \
---cloud-provider Azure \
 --admin-username $UCP_ADMIN_USERID \
 --admin-password $UCP_ADMIN_PASSWORD \
 --debug
