@@ -89,8 +89,7 @@ touch /home/$UCP_ADMIN_USERID/docker_subscription.lic
 echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
-  
-  
+
 #Firewalling
 sudo ufw allow 179/tcp
 sudo ufw allow 443/tcp
@@ -136,7 +135,7 @@ docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
     docker/ucp:3.0.6 install \
     --controller-port $UCP_PORT \
-    --host-address eth0
+    --host-address eth0 \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
@@ -162,6 +161,7 @@ UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/d
 docker run --rm -i --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
 docker/ucp:3.1.0 upgrade \
+--host-address eth0 \
 --id $UCP_ID \
 --admin-username $UCP_ADMIN_USERID \
 --admin-password $UCP_ADMIN_PASSWORD \
