@@ -26,8 +26,8 @@ AZURE_SUBSCRIPTION_ID=${12}
 AZURE_CLIENT_SECRET="${13}"
 LOCATION=${14}
 RGNAME=${15}
-registry-username=${16}
-registry-password=${17}
+REGISTRY_USERNAME=${16}
+REGISTRY_PASSWORD=${17}
 
 
 eval HOST_IP_ADDRESS=$(ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
@@ -143,8 +143,8 @@ docker run --rm -i --name ucp \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
-    --registry-username $registry-username \
-    --registry-password $registry-password \
+    --registry-username $REGISTRY_USERNAME \
+    --registry-password $REGISTRY_PASSWORD \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
 
