@@ -143,8 +143,8 @@ docker run --rm -i --name ucp \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
-    --registry-username streamone2018 \
-    --registry-password StreamOne2018! \
+    --registry-username $registry-username \
+    --registry-password $registry-password \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
 
