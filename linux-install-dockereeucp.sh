@@ -26,8 +26,7 @@ AZURE_SUBSCRIPTION_ID=${12}
 AZURE_CLIENT_SECRET="${13}"
 LOCATION=${14}
 RGNAME=${15}
-REGISTRY_USERNAME=${16}
-REGISTRY_PASSWORD=${17}
+
 
 
 eval HOST_IP_ADDRESS=$(ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
@@ -93,6 +92,27 @@ echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
+# Create the azure_ucp_admin.toml
+docker swarm init
+touch /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_CLIENT_ID = "$AZURE_CLIENT_ID" > /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_TENANT_ID = "$AZURE_TENANT_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_SUBSCRIPTION_ID = "$AZURE_SUBSCRIPTION_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+echo AZURE_CLIENT_SECRET = "$AZURE_CLIENT_SECRET" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+
+# Create the Secret and the Service
+docker secret create azure_ucp_admin.toml /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+
+docker service create \
+  --mode=global \
+  --secret=azure_ucp_admin.toml \
+  --log-driver json-file \
+  --log-opt max-size=1m \
+  --env IP_COUNT=128 \
+  --name ipallocator \
+  --constraint "node.platform.os == linux" \
+  docker4x/az-nic-ips
+
 wget https://packages.docker.com/caas/ucp_images_3.0.6.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
 
@@ -141,7 +161,6 @@ docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
     docker/ucp:3.0.6 install \
     --controller-port $UCP_PORT \
-    --host-address eth0 \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
