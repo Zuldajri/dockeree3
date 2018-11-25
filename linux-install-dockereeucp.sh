@@ -27,8 +27,6 @@ AZURE_CLIENT_SECRET="${13}"
 LOCATION=${14}
 RGNAME=${15}
 
-
-
 eval HOST_IP_ADDRESS=$(ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
 
 echo "HOST_IP_ADDRESS=$HOST_IP_ADDRESS"
@@ -200,7 +198,6 @@ rm $CNI_BIN_DIR/*.tgz
 chown root:root $CNI_BIN_DIR/*
 
 
-
 #Firewalling
 sudo ufw allow 179/tcp
 sudo ufw allow 443/tcp
@@ -246,17 +243,16 @@ echo "UCP_PORT=$UCP_PORT"
 
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    docker/ucp:3.1.0 install \
+    docker/ucp:3.0.6 install \
     --controller-port $UCP_PORT \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
     --cloud-provider azure \
+    --cni-installer-url \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
-    --unmanaged-cni true \
     --debug
-
 
 # Add the Azure Storage Volume Driver
 
@@ -268,6 +264,17 @@ docker plugin install --alias cloudstor:azure \
   AZURE_STORAGE_ENDPOINT="core.windows.net" \
   DEBUG=1
 
+# Get the UCP_ID
+UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
+
+# Upgrade UCP to 3.1.0
+docker run --rm -i --name ucp \
+-v /var/run/docker.sock:/var/run/docker.sock \
+docker/ucp:3.1.0 upgrade \
+--id $UCP_ID \
+--admin-username $UCP_ADMIN_USERID \
+--admin-password $UCP_ADMIN_PASSWORD \
+--debug
 
 # UBUNTU
 
