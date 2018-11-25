@@ -93,7 +93,8 @@ echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
-docker login --username=$REGISTRY_USERNAME --password=$REGISTRY_PASSWORD
+wget https://packages.docker.com/caas/ucp_images_3.0.6.tar.gz -O ucp.tar.gz
+docker load < ucp.tar.gz
 
 #Firewalling
 sudo ufw allow 179/tcp
@@ -145,8 +146,6 @@ docker run --rm -i --name ucp \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
-    --registry-username $REGISTRY_USERNAME \
-    --registry-password $REGISTRY_PASSWORD \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
 
