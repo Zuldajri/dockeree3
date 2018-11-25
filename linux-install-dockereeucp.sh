@@ -92,8 +92,6 @@ echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
-wget https://packages.docker.com/caas/ucp_images_3.0.6.tar.gz -O ucp.tar.gz
-docker load < ucp.tar.gz
 
 #Firewalling
 sudo ufw allow 179/tcp
@@ -119,6 +117,8 @@ sudo ufw allow 12386/tcp
 sudo ufw allow 12387/tcp
 sudo ufw allow 12388/tcp
 
+wget https://packages.docker.com/caas/ucp_images_3.1.0.tar.gz -O ucp.tar.gz
+docker load < ucp.tar.gz
 
 
 # Split the UCP FQDN et get the SAN and the port
@@ -138,13 +138,16 @@ echo "UCP_PORT=$UCP_PORT"
 
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    docker/ucp:3.0.6 install \
+    docker/ucp:3.1.0 install \
     --controller-port $UCP_PORT \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
      --host-address eth0 \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
+    --unmanaged-cni true \
+    --cloud-provider azure \
+    --pod-cidr $POD_CIDR \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
 
@@ -160,22 +163,13 @@ docker plugin install --alias cloudstor:azure \
   DEBUG=1
 
 
-
-# Get the UCP_ID
-UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
-
-wget https://packages.docker.com/caas/ucp_images_3.1.0.tar.gz -O ucp.tar.gz
-docker load < ucp.tar.gz
-
 # Upgrade UCP to 3.1.0
 docker run --rm -i --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
 docker/ucp:3.1.0 upgrade \
---id $UCP_ID \
---host-address eth0 \
---admin-username $UCP_ADMIN_USERID \
---admin-password $UCP_ADMIN_PASSWORD \
---debug
+
+
+
 
 
 # UBUNTU
