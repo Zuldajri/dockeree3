@@ -222,7 +222,7 @@ sudo ufw allow 12386/tcp
 sudo ufw allow 12387/tcp
 sudo ufw allow 12388/tcp
 
-wget https://packages.docker.com/caas/ucp_images_3.1.0.tar.gz -O ucp.tar.gz
+wget https://packages.docker.com/caas/ucp_images_3.0.6.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
 
 
@@ -263,6 +263,9 @@ docker plugin install --alias cloudstor:azure \
   AZURE_STORAGE_ACCOUNT=$AZURE_STORAGE_ACCOUNT_NAME \
   AZURE_STORAGE_ENDPOINT="core.windows.net" \
   DEBUG=1
+
+wget https://packages.docker.com/caas/ucp_images_3.1.0.tar.gz -O ucp.tar.gz
+docker load < ucp.tar.gz
 
 # Get the UCP_ID
 UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
