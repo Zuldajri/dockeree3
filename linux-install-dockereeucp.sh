@@ -179,13 +179,6 @@ docker plugin install --alias cloudstor:azure \
   AZURE_STORAGE_ENDPOINT="core.windows.net" \
   DEBUG=1
 
-AUTHTOKEN=$(curl -sk -d '{"username":"'"$UCP_ADMIN_USERID"'","password":"'"$UCP_ADMIN_PASSWORD"'"}' https://$UCP_PUBLIC_FQDN/auth/login | jq -r .auth_token)
-echo "AUTH TOKEN IS : $AUTHTOKEN"
-
-curl -k -H "Authorization: Bearer ${AUTHTOKEN}" https://$UCP_PUBLIC_FQDN/api/clientbundle -o /home/$UCP_ADMIN_USERID/bundle.zip
-unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /var/lib/waagent/custom-script/download/0/env.sh && source /var/lib/waagent/custom-script/download/0/env.sh
-
-curl --cacert ca.pem --cert cert.pem --key key.pem https://$UCP_PUBLIC_FQDN/api/ucp/config-toml > ucp-config-3.0.6.toml
 
 
 # Get the UCP_ID
@@ -214,6 +207,8 @@ AUTHTOKEN=$(curl -sk -d '{"username":"'"$UCP_ADMIN_USERID"'","password":"'"$UCP_
 echo "AUTH TOKEN IS : $AUTHTOKEN"
 
 # Download the user client bundle to extract the certificate and configure the cli for the swarm to join
+curl -k -H "Authorization: Bearer ${AUTHTOKEN}" https://$UCP_PUBLIC_FQDN/api/clientbundle -o /home/$UCP_ADMIN_USERID/bundle.zip
+unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /var/lib/waagent/custom-script/download/0/env.sh && source /var/lib/waagent/custom-script/download/0/env.sh
 
 
 kubectl create -f https://raw.githubusercontent.com/Zuldajri/DockerEE/master/nfs-server.yaml
@@ -225,6 +220,5 @@ wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.
 echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
 kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
 
-curl --cacert ca.pem --cert cert.pem --key key.pem https://$UCP_PUBLIC_FQDN/api/ucp/config-toml > ucp-config-3.1.0.toml
 
 echo $(date) " linux-install-ucp - End of Script"
