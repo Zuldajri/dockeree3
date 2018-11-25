@@ -163,15 +163,6 @@ docker plugin install --alias cloudstor:azure \
   DEBUG=1
 
 
-# Upgrade UCP to 3.1.0
-docker run --rm -i --name ucp \
--v /var/run/docker.sock:/var/run/docker.sock \
-docker/ucp:3.1.0 upgrade \
-
-
-
-
-
 # UBUNTU
 
 apt-get install jq unzip -y
@@ -194,6 +185,5 @@ IP=$(kubectl describe pod nfs-server | grep IP: | awk 'NR==1 {print $2}')
 wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.yaml -O /home/$UCP_ADMIN_USERID/default-storage.yaml
 echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
 kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
-
 
 echo $(date) " linux-install-ucp - End of Script"
