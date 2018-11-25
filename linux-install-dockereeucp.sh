@@ -250,7 +250,7 @@ docker run --rm -i --name ucp \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
     --cloud-provider azure \
-    --cni-installer-url https://raw.githubusercontent.com/Azure/acs-engine/master/parts/k8s/addons/kubernetesmasteraddons-azure-npm-daemonset.yaml \
+    --cni-installer-url https://raw.githubusercontent.com/Zuldajri/DockerEE/master/kubernetesmasteraddons-azure-npm-daemonset.yaml \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
 
