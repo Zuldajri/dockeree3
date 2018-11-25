@@ -93,6 +93,8 @@ echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
+docker login --username=$REGISTRY_USERNAME --password=$REGISTRY_PASSWORD
+
 #Firewalling
 sudo ufw allow 179/tcp
 sudo ufw allow 443/tcp
