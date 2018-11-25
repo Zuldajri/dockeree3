@@ -92,27 +92,6 @@ echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
-# Create the azure_ucp_admin.toml
-docker swarm init
-touch /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_CLIENT_ID = "$AZURE_CLIENT_ID" > /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_TENANT_ID = "$AZURE_TENANT_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_SUBSCRIPTION_ID = "$AZURE_SUBSCRIPTION_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_CLIENT_SECRET = "$AZURE_CLIENT_SECRET" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-
-# Create the Secret and the Service
-docker secret create azure_ucp_admin.toml /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-
-docker service create \
-  --mode=global \
-  --secret=azure_ucp_admin.toml \
-  --log-driver json-file \
-  --log-opt max-size=1m \
-  --env IP_COUNT=128 \
-  --name ipallocator \
-  --constraint "node.platform.os == linux" \
-  docker4x/az-nic-ips
-
 wget https://packages.docker.com/caas/ucp_images_3.0.6.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
 
@@ -163,6 +142,7 @@ docker run --rm -i --name ucp \
     --controller-port $UCP_PORT \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
+     --host-address eth0 \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
@@ -192,6 +172,7 @@ docker run --rm -i --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
 docker/ucp:3.1.0 upgrade \
 --id $UCP_ID \
+--host-address eth0 \
 --admin-username $UCP_ADMIN_USERID \
 --admin-password $UCP_ADMIN_PASSWORD \
 --debug
