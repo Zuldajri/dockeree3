@@ -178,15 +178,26 @@ docker plugin install --alias cloudstor:azure \
   AZURE_STORAGE_ACCOUNT=$AZURE_STORAGE_ACCOUNT_NAME \
   AZURE_STORAGE_ENDPOINT="core.windows.net" \
   DEBUG=1
-  
+
+AUTHTOKEN=$(curl -sk -d '{"username":"'"$UCP_ADMIN_USERID"'","password":"'"$UCP_ADMIN_PASSWORD"'"}' https://$UCP_PUBLIC_FQDN/auth/login | jq -r .auth_token)
+echo "AUTH TOKEN IS : $AUTHTOKEN"
+
+curl -k -H "Authorization: Bearer ${AUTHTOKEN}" https://$UCP_PUBLIC_FQDN/api/clientbundle -o /home/$UCP_ADMIN_USERID/bundle.zip
+unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /var/lib/waagent/custom-script/download/0/env.sh && source /var/lib/waagent/custom-script/download/0/env.sh
+
+curl --cacert ca.pem --cert cert.pem --key key.pem https://$UCP_PUBLIC_FQDN/api/ucp/config-toml > ucp-config-3.0.6.toml
+
+
 # Get the UCP_ID
 UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
+
+wget https://packages.docker.com/caas/ucp_images_3.1.0.tar.gz -O ucp.tar.gz
+docker load < ucp.tar.gz
 
 # Upgrade UCP to 3.1.0
 docker run --rm -i --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
 docker/ucp:3.1.0 upgrade \
---host-address eth0 \
 --id $UCP_ID \
 --admin-username $UCP_ADMIN_USERID \
 --admin-password $UCP_ADMIN_PASSWORD \
@@ -204,8 +215,7 @@ echo "AUTH TOKEN IS : $AUTHTOKEN"
 
 # Download the user client bundle to extract the certificate and configure the cli for the swarm to join
 
-curl -k -H "Authorization: Bearer ${AUTHTOKEN}" https://$UCP_PUBLIC_FQDN/api/clientbundle -o /home/$UCP_ADMIN_USERID/bundle.zip
-unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /var/lib/waagent/custom-script/download/0/env.sh && source /var/lib/waagent/custom-script/download/0/env.sh
+
 kubectl create -f https://raw.githubusercontent.com/Zuldajri/DockerEE/master/nfs-server.yaml
 sleep 2m
 
@@ -214,5 +224,7 @@ IP=$(kubectl describe pod nfs-server | grep IP: | awk 'NR==1 {print $2}')
 wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.yaml -O /home/$UCP_ADMIN_USERID/default-storage.yaml
 echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
 kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
+
+curl --cacert ca.pem --cert cert.pem --key key.pem https://$UCP_PUBLIC_FQDN/api/ucp/config-toml > ucp-config-3.1.0.toml
 
 echo $(date) " linux-install-ucp - End of Script"
