@@ -254,6 +254,7 @@ docker run --rm -i --name ucp \
     --admin-password $UCP_ADMIN_PASSWORD \
     --cloud-provider azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
+    --unmanaged-cni true \
     --debug
 
 
