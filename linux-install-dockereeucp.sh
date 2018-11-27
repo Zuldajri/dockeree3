@@ -238,7 +238,7 @@ wget https://github.com/projectcalico/calicoctl/releases/download/v3.1.1/calicoc
 chmod 777 calicoctl
 mv calicoctl /bin
 calicoctl get ippool -o yaml > ippool.yaml
-cat /root/ippool.yaml | sed -e "s/ipipMode: Always/ipipMode: Never/" >/root/ippool1.yaml
+cat /ippool.yaml | sed -e "s/ipipMode: Always/ipipMode: Never/" > /ippool1.yaml
 calicoctl apply -f ippool1.yaml
 
 echo $(date) " linux-install-ucp - End of Script"
