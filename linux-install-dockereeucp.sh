@@ -67,23 +67,8 @@ chmod +x ./kubectl
 # Move the kubectl executable to /usr/local/bin.
 sudo mv ./kubectl /usr/local/bin/kubectl
 
-# Azure - GET PODCIDR & Set up Route Table
-AZ_REPO=$(lsb_release -cs)
-echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-sudo apt-key --keyring /etc/apt/trusted.gpg.d/Microsoft.gpg adv --keyserver packages.microsoft.com --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
-sudo apt-get update
-sudo apt-get install azure-cli
-
-az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-
-PRIVATE_IP_ADDRESS1=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
 
 POD_CIDR=192.168.0.0/16
-echo $PRIVATE_IP_ADDRESS1 $POD_CIDR
-
-az network route-table create -g $RGNAME -n kubernetes-routes
-az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
-az network route-table route create -g $RGNAME -n kubernetes-route-192-168-0-0-16 --route-table-name kubernetes-routes --address-prefix 192.168.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS1 --next-hop-type VirtualAppliance
 
 
 # Create the /etc/kubernetes/azure.json
