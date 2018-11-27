@@ -231,5 +231,15 @@ wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.
 echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
 kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
 
+# Exec into the Calico Kubernetes controller container.
+docker exec -it $(docker ps --filter name=k8s_calico-kube-controllers_calico-kube-controllers -q) sh
+
+# Download calicoctl
+wget https://github.com/projectcalico/calicoctl/releases/download/v3.1.1/calicoctl
+chmod 777 calicoctl
+mv calicoctl /bin
+calicoctl get ippool -o yaml > ippool.yaml
+cat /root/ippool.yaml | sed -e "s/ipipMode: Always/ipipMode: Never/" >/root/ippool1.yaml
+calicoctl apply -f ippool1.yaml
 
 echo $(date) " linux-install-ucp - End of Script"
