@@ -77,17 +77,13 @@ sudo apt-get install azure-cli
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
 PRIVATE_IP_ADDRESS1=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
-PRIVATE_IP_ADDRESS2=$(az vm show -d -g $RGNAME -n linuxWorker2 --query "privateIps" -otsv)
-PRIVATE_IP_ADDRESS3=$(az vm show -d -g $RGNAME -n dtrManager --query "privateIps" -otsv)
 
 POD_CIDR=192.168.0.0/16
-echo $PRIVATE_IP_ADDRESS1 $PRIVATE_IP_ADDRESS2 $PRIVATE_IP_ADDRESS3 $POD_CIDR
+echo $PRIVATE_IP_ADDRESS1 $POD_CIDR
 
 az network route-table create -g $RGNAME -n kubernetes-routes
 az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
-az network route-table route create -g $RGNAME -n kubernetes-route-192-168-0-0-11 --route-table-name kubernetes-routes --address-prefix 192.168.2.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS1 --next-hop-type VirtualAppliance
-az network route-table route create -g $RGNAME -n kubernetes-route-192-168-0-0-12 --route-table-name kubernetes-routes --address-prefix 192.168.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS2 --next-hop-type VirtualAppliance
-az network route-table route create -g $RGNAME -n kubernetes-route-192-168-0-0-13 --route-table-name kubernetes-routes --address-prefix 192.168.1.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS3 --next-hop-type VirtualAppliance
+az network route-table route create -g $RGNAME -n kubernetes-route-192-168-0-0-16 --route-table-name kubernetes-routes --address-prefix 192.168.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS1 --next-hop-type VirtualAppliance
 
 
 # Create the /etc/kubernetes/azure.json
@@ -104,7 +100,7 @@ echo "location": "$LOCATION", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "subnetName": "docker", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "securityGroupName": "ucpManager-nsg", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "vnetName": "clusterVirtualNetwork", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "routeTableName": "kubernetes-route-192-168-0-0-11", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "routeTableName": "kubernetes-route-192-168-0-0-16", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "primaryAvailabilitySetName": "ucpAvailabilitySet", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoff": false >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoffRetries": 0, >> /home/$UCP_ADMIN_USERID/azure.json
