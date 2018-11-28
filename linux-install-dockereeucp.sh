@@ -218,15 +218,9 @@ echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
 kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
 
 # Exec into the Calico Kubernetes controller container.
-# docker exec -it $(docker ps --filter name=k8s_calico-kube-controllers_calico-kube-controllers -q) sh
+docker exec -i $(docker ps --filter name=k8s_calico-kube-controllers_calico-kube-controllers -q) sh -c 'wget https://github.com/projectcalico/calicoctl/releases/download/v3.1.1/calicoctl && chmod 777 calicoctl && mv calicoctl /bin && calicoctl get ippool -o yaml > ippool.yaml && cat /ippool.yaml | sed -e "s/ipipMode: Always/ipipMode: Never/" > /ippool1.yaml && calicoctl apply -f ippool1.yaml'
 
-# Download calicoctl
-# wget https://github.com/projectcalico/calicoctl/releases/download/v3.1.1/calicoctl
-# chmod 777 calicoctl
-# mv calicoctl /bin
-# calicoctl get ippool -o yaml > ippool.yaml
-# cat /ippool.yaml | sed -e "s/ipipMode: Always/ipipMode: Never/" > /ippool1.yaml
-# calicoctl apply -f ippool1.yaml
-# kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
+sleep 1m
+kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
 
 echo $(date) " linux-install-ucp - End of Script"
