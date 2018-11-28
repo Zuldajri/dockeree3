@@ -67,8 +67,22 @@ chmod +x ./kubectl
 # Move the kubectl executable to /usr/local/bin.
 sudo mv ./kubectl /usr/local/bin/kubectl
 
+# Azure - GET PODCIDR & Set up Route Table
+AZ_REPO=$(lsb_release -cs)
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+sudo apt-key --keyring /etc/apt/trusted.gpg.d/Microsoft.gpg adv --keyserver packages.microsoft.com --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
+sudo apt-get update
+sudo apt-get install azure-cli
 
+az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+
+PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
 POD_CIDR=192.168.0.0/16
+echo $PRIVATE_IP_ADDRESS $POD_CIDR
+
+az network route-table create -g $RGNAME -n kubernetes-routes
+az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
+az network route-table route create -g $RGNAME -n kubernetes-route-192-168-0-0-16 --route-table-name kubernetes-routes --address-prefix 192.168.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
 
 
 # Create the /etc/kubernetes/azure.json
@@ -198,6 +212,10 @@ docker/ucp:3.1.0 upgrade \
 
 apt-get install jq unzip -y
 
+# Exec into the Calico Kubernetes controller container.
+docker exec -i $(docker ps --filter name=k8s_calico-kube-controllers_calico-kube-controllers -q) sh -c 'wget https://github.com/projectcalico/calicoctl/releases/download/v3.1.1/calicoctl && chmod 777 calicoctl && mv calicoctl /bin && calicoctl get ippool -o yaml > ippool.yaml && cat /ippool.yaml | sed -e "s/ipipMode: Always/ipipMode: Never/" > /ippool1.yaml && calicoctl apply -f ippool1.yaml'
+sleep 1m
+
 # Retrieve and extract the Auth Token for the current user
 
 AUTHTOKEN=$(curl -sk -d '{"username":"'"$UCP_ADMIN_USERID"'","password":"'"$UCP_ADMIN_PASSWORD"'"}' https://$UCP_PUBLIC_FQDN/auth/login | jq -r .auth_token)
@@ -217,10 +235,6 @@ wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.
 echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
 kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
 
-# Exec into the Calico Kubernetes controller container.
-docker exec -i $(docker ps --filter name=k8s_calico-kube-controllers_calico-kube-controllers -q) sh -c 'wget https://github.com/projectcalico/calicoctl/releases/download/v3.1.1/calicoctl && chmod 777 calicoctl && mv calicoctl /bin && calicoctl get ippool -o yaml > ippool.yaml && cat /ippool.yaml | sed -e "s/ipipMode: Always/ipipMode: Never/" > /ippool1.yaml && calicoctl apply -f ippool1.yaml'
-
-sleep 1m
 kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
 
 echo $(date) " linux-install-ucp - End of Script"
