@@ -227,5 +227,6 @@ kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
 # calicoctl get ippool -o yaml > ippool.yaml
 # cat /ippool.yaml | sed -e "s/ipipMode: Always/ipipMode: Never/" > /ippool1.yaml
 # calicoctl apply -f ippool1.yaml
+kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
 
 echo $(date) " linux-install-ucp - End of Script"
