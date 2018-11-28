@@ -35,13 +35,13 @@ docker run --rm docker/dtr:2.6.0 install \
 --debug
 
 # Install sshpass
-sudo apt-get install sshpass
-sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node ls | grep linuxWorker1 | awk 'NR==1 {print $1}' > /home/$UCP_ADMIN_USERID/linuxWorker1ID)"
-sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node ls | grep linuxWorker2 | awk 'NR==1 {print $1}' > /home/$UCP_ADMIN_USERID/linuxWorker2ID)"
-sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node ls | grep dtrmanager | awk 'NR==1 {print $1}' > /home/$UCP_ADMIN_USERID/dtrManagerID)"
+#sudo apt-get install sshpass
+#sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node ls | grep linuxWorker1 | awk 'NR==1 {print $1}' > /home/$UCP_ADMIN_USERID/linuxWorker1ID)"
+#sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node ls | grep linuxWorker2 | awk 'NR==1 {print $1}' > /home/$UCP_ADMIN_USERID/linuxWorker2ID)"
+#sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node ls | grep dtrmanager | awk 'NR==1 {print $1}' > /home/$UCP_ADMIN_USERID/dtrManagerID)"
 
 
-sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node update --label-add com.docker.ucp.orchestrator.kubernetes=true "$(cat /home/$UCP_ADMIN_USERID/linuxWorker1ID)")"
-sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node update --label-add com.docker.ucp.orchestrator.swarm=false "$(cat /home/$UCP_ADMIN_USERID/linuxWorker1ID)")"
+#sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node update --label-add com.docker.ucp.orchestrator.kubernetes=true "$(cat /home/$UCP_ADMIN_USERID/linuxWorker1ID)")"
+#sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node update --label-add com.docker.ucp.orchestrator.swarm=false "$(cat /home/$UCP_ADMIN_USERID/linuxWorker1ID)")"
 
 echo $(date) " linux-install-dtr - End of Script"
