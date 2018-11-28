@@ -237,4 +237,8 @@ kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
 
 kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
 
+docker node ls | grep linuxWorker1 | awk 'NR==1 {print $1}' > /home/$UCP_ADMIN_USERID/linuxWorker1ID
+docker node ls | grep linuxWorker2 | awk 'NR==1 {print $1}' > /home/$UCP_ADMIN_USERID/linuxWorker2ID
+docker node ls | grep dtrManager | awk 'NR==1 {print $1}' > /home/$UCP_ADMIN_USERID/dtrManagerID
+
 echo $(date) " linux-install-ucp - End of Script"
