@@ -193,7 +193,6 @@ docker run --rm -i --name ucp \
     --controller-port $UCP_PORT \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
-     --host-address eth0 \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
@@ -223,7 +222,6 @@ docker run --rm -i --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
 docker/ucp:3.1.0 upgrade \
 --id $UCP_ID \
---host-address eth0 \
 --admin-username $UCP_ADMIN_USERID \
 --admin-password $UCP_ADMIN_PASSWORD \
 --debug
