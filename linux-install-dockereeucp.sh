@@ -244,6 +244,13 @@ echo "AUTH TOKEN IS : $AUTHTOKEN"
 curl -k -H "Authorization: Bearer ${AUTHTOKEN}" https://$UCP_PUBLIC_FQDN/api/clientbundle -o /home/$UCP_ADMIN_USERID/bundle.zip
 unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /var/lib/waagent/custom-script/download/0/env.sh && source /var/lib/waagent/custom-script/download/0/env.sh
 
+wget https://github.com/projectcalico/calicoctl/releases/download/v3.1.1/calicoctl
+chmod 777 calicoctl
+mv calicoctl /bin/
+calicoctl node run
+
+wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/rbac-kdd.yaml -O /home/$UCP_ADMIN_USERID/rbac-kdd.yaml
+kubectl apply -f /home/$UCP_ADMIN_USERID/rbac-kdd.yaml
 
 kubectl create -f https://raw.githubusercontent.com/Zuldajri/DockerEE/master/nfs-server.yaml
 sleep 2m
@@ -253,9 +260,6 @@ IP=$(kubectl describe pod nfs-server | grep IP: | awk 'NR==1 {print $2}')
 wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.yaml -O /home/$UCP_ADMIN_USERID/default-storage.yaml
 echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
 kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
-
-wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/rbac-kdd.yaml -O /home/$UCP_ADMIN_USERID/rbac-kdd.yaml
-kubectl apply -f /home/$UCP_ADMIN_USERID/rbac-kdd.yaml
 
 
 echo $(date) " linux-install-ucp - End of Script"
