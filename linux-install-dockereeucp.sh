@@ -190,6 +190,7 @@ docker run --rm -i --name ucp \
 docker/ucp:3.1.0 upgrade \
 --id $UCP_ID \
 --host-address eth0 \
+--unmanaged-cni false \
 --admin-username $UCP_ADMIN_USERID \
 --admin-password $UCP_ADMIN_PASSWORD \
 --debug
@@ -217,6 +218,9 @@ IP=$(kubectl describe pod nfs-server | grep IP: | awk 'NR==1 {print $2}')
 wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.yaml -O /home/$UCP_ADMIN_USERID/default-storage.yaml
 echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
 kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
+
+wget $CNI_URL -O /home/$UCP_ADMIN_USERID/kube-flannel.yml
+kubectl create -f /home/$UCP_ADMIN_USERID/kube-flannel.yml
 
 # Exec into the Calico Kubernetes controller container.
 # docker exec -it $(docker ps --filter name=k8s_calico-kube-controllers_calico-kube-controllers -q) sh
