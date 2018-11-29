@@ -27,7 +27,7 @@ AZURE_CLIENT_SECRET="${13}"
 LOCATION=${14}
 RGNAME=${15}
 
-CNI_URL="https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+CNI_URL="https://raw.githubusercontent.com/Zuldajri/DockerEE/master/kube-flannel.yml"
 
 eval HOST_IP_ADDRESS=$(ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
 
