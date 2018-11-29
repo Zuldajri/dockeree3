@@ -190,7 +190,6 @@ docker run --rm -i --name ucp \
 docker/ucp:3.1.0 upgrade \
 --id $UCP_ID \
 --host-address eth0 \
---unmanaged-cni false \
 --admin-username $UCP_ADMIN_USERID \
 --admin-password $UCP_ADMIN_PASSWORD \
 --debug
