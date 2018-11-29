@@ -27,7 +27,7 @@ AZURE_CLIENT_SECRET="${13}"
 LOCATION=${14}
 RGNAME=${15}
 
-
+CNI_URL="https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
 
 eval HOST_IP_ADDRESS=$(ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
 
@@ -158,7 +158,8 @@ docker run --rm -i --name ucp \
     --controller-port $UCP_PORT \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
-     --host-address eth0 \
+    --host-address eth0 \
+    --cni-installer-url $CNI_URL \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
