@@ -52,8 +52,15 @@ sudo ufw allow 10250/tcp
 sudo ufw allow 12376/tcp
 sudo ufw allow 12378/tcp
 
-
 iptables -t nat -A POSTROUTING -m iprange ! --dst-range 168.63.129.16 -m addrtype ! --dst-type local ! -d 10.0.0.0/16 -j MASQUERADE
+
+echo "address $HOST_IP_ADDRESS" >> /etc/network/interfaces.d/50-cloud-init.cfg
+echo "netmask 10.0.0.0/16" >> /etc/network/interfaces.d/50-cloud-init.cfg
+
+sudo ifdown eth0 && sudo ifup eth0
+
+
+
 
 # Post Installation configuration (all Linux distros)
 
