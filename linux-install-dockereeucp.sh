@@ -256,6 +256,11 @@ wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.
 echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
 kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
 
+echo "address 10.0.1.4" >> /etc/network/interfaces.d/50-cloud-init.cfg
+echo "netmask 10.0.0.0/16" >> /etc/network/interfaces.d/50-cloud-init.cfg
+
+sudo ifdown eth0 && sudo ifup eth0
+
 
 # Exec into the Calico Kubernetes controller container.
 # docker exec -it $(docker ps --filter name=k8s_calico-kube-controllers_calico-kube-controllers -q) sh
