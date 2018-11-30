@@ -53,8 +53,7 @@ sudo ufw allow 12376/tcp
 sudo ufw allow 12378/tcp
 
 
-iptables -t nat -A POSTROUTING -m iprange ! --dst-range 168.63.129.16 -m
-addrtype ! --dst-type local ! -d 10.0.0.0/16 -j MASQUERADE
+iptables -t nat -A POSTROUTING -m iprange ! --dst-range 168.63.129.16 -m addrtype ! --dst-type local ! -d 10.0.0.0/16 -j MASQUERADE
 
 # Post Installation configuration (all Linux distros)
 
