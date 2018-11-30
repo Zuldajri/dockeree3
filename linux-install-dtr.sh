@@ -34,6 +34,11 @@ docker run --rm docker/dtr:2.6.0 install \
 #      --replica-http-port 84 \
 --debug
 
+echo "address 10.0.2.4" >> /etc/network/interfaces.d/50-cloud-init.cfg
+echo "netmask 10.0.0.0/16" >> /etc/network/interfaces.d/50-cloud-init.cfg
+
+sudo ifdown eth0 && sudo ifup eth0
+
 # Install sshpass
 #sudo apt-get install sshpass
 #sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(UCP_ADMIN_USERID=williamm && docker node ls | grep linuxWorker1 | awk 'NR==1 {print $1}' > /home/$UCP_ADMIN_USERID/linuxWorker1ID)"
