@@ -214,13 +214,13 @@ docker plugin install --alias cloudstor:azure \
 # Get the UCP_ID
 UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
 
-wget https://packages.docker.com/caas/ucp_images_3.1.1.tar.gz -O ucp.tar.gz
+wget https://packages.docker.com/caas/ucp_images_3.1.0.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
 
-# Upgrade UCP to 3.1.1
+# Upgrade UCP to 3.1.0
 docker run --rm -i --name ucp \
 -v /var/run/docker.sock:/var/run/docker.sock \
-docker/ucp:3.1.1 upgrade \
+docker/ucp:3.1.0 upgrade \
 --id $UCP_ID \
 --admin-username $UCP_ADMIN_USERID \
 --admin-password $UCP_ADMIN_PASSWORD \
