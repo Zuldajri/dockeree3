@@ -23,16 +23,14 @@ echo $(date) " linux-install-dtr - Now start the DTR installation"
 
 #install DTR
 
-docker run --rm docker/dtr:2.6.0 install \
+docker run --rm docker/dtr:2.6.1 install \
       --ucp-url $UCP_PUBLIC_FQDN \
       --ucp-node "dtrmanager" \
       --dtr-external-url $DTR_PUBLIC_FQDN \
       --ucp-username $UCP_ADMIN_USERID \
       --ucp-password $UCP_ADMIN_PASSWORD \
       --ucp-insecure-tls \
-#      --replica-https-port 444 \
-#      --replica-http-port 84 \
---debug
+      --debug
 
 
 
