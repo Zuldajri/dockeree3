@@ -26,8 +26,13 @@ AZURE_SUBSCRIPTION_ID=${12}
 AZURE_CLIENT_SECRET="${13}"
 LOCATION=${14}
 RGNAME=${15}
+PRIVATEKEY=${16}
 
+# Generate private keys for use 
+echo $(date) " - Generating Private keys for SWARM Installation"
 
+runuser -l $UCP_ADMIN_USERID -c "echo -e \"$PRIVATEKEY\" > ~/.ssh/id_rsa"
+runuser -l $UCP_ADMIN_USERID -c "chmod 600 ~/.ssh/id_rsa*"
 
 eval HOST_IP_ADDRESS=$(ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
 
