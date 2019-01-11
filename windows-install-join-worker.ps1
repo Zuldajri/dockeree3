@@ -44,12 +44,12 @@ function Join-Swarm ()
 
     # Get the required images to configure the local engine
 
-    docker image pull docker/ucp-agent-win:3.1.0
-    docker image pull docker/ucp-dsinfo-win:3.1.0
+    docker image pull docker/ucp-agent-win:3.1.2
+    docker image pull docker/ucp-dsinfo-win:3.1.2
 
     # Execute the local node configuration
 
-    docker container run --rm docker/ucp-agent-win:3.1.0 windows-script | powershell -noprofile -noninteractive -command 'Invoke-Expression -Command $input'
+    docker container run --rm docker/ucp-agent-win:3.1.2 windows-script | powershell -noprofile -noninteractive -command 'Invoke-Expression -Command $input'
 
     # Deactivate HTTPS cert check to allow REST access to UCP with self signed cert
 
