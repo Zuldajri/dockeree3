@@ -190,11 +190,9 @@ echo "UCP_SAN=$UCP_SAN"
 echo "UCP_PORT=$UCP_PORT"
 
 # Install UCP
-docker container run --rm -i \ 
-    --name ucp \
+docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
     docker/ucp:3.1.2 install \
-    --host-address 10.0.1.4 \
     --controller-port $UCP_PORT \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
