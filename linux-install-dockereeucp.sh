@@ -198,6 +198,7 @@ docker run --rm -i --name ucp \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
+    --pod-cidr $POD_CIDR \
     --cloud-provider Azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
