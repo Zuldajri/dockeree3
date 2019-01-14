@@ -104,7 +104,7 @@ echo "location": "$LOCATION", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "subnetName": "/docker", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "securityGroupName": "ucpManager-nsg", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "vnetName": "clusterVirtualNetwork", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "primaryAvailabilitySetName": "ucpAvailabilitySet", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "primaryAvailabilitySetName": "clusterAvailabilitySet", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoff": false >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoffRetries": 0, >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoffExponent": 0, >> /home/$UCP_ADMIN_USERID/azure.json
@@ -147,7 +147,7 @@ chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 #  --constraint "node.platform.os == linux" \
 #  docker4x/az-nic-ips
   
-wget https://packages.docker.com/caas/ucp_images_3.0.6.tar.gz -O ucp.tar.gz
+wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
 
 #Firewalling
@@ -190,9 +190,11 @@ echo "UCP_SAN=$UCP_SAN"
 echo "UCP_PORT=$UCP_PORT"
 
 # Install UCP
-docker run --rm -i --name ucp \
+docker container run --rm -i \ 
+    --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    docker/ucp:3.0.6 install \
+    docker/ucp:3.1.2 install \
+    --host-address 10.0.1.4 \
     --controller-port $UCP_PORT \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
@@ -216,19 +218,19 @@ docker plugin install --alias cloudstor:azure \
 
 
 # Get the UCP_ID
-UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
+#UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
 
-wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
-docker load < ucp.tar.gz
+#wget https://packages.docker.com/caas/ucp_images_3.1.0.tar.gz -O ucp.tar.gz
+#docker load < ucp.tar.gz
 
 # Upgrade UCP to 3.1.0
-docker run --rm -i --name ucp \
--v /var/run/docker.sock:/var/run/docker.sock \
-docker/ucp:3.1.2 upgrade \
---id $UCP_ID \
---admin-username $UCP_ADMIN_USERID \
---admin-password $UCP_ADMIN_PASSWORD \
---debug
+#docker run --rm -i --name ucp \
+#-v /var/run/docker.sock:/var/run/docker.sock \
+#docker/ucp:3.1.0 upgrade \
+#--id $UCP_ID \
+#--admin-username $UCP_ADMIN_USERID \
+#--admin-password $UCP_ADMIN_PASSWORD \
+#--debug
 
 
 # UBUNTU
