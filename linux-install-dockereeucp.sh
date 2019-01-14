@@ -82,7 +82,7 @@ sudo mv ./kubectl /usr/local/bin/kubectl
 #az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
 #PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
-POD_CIDR=10.0.0.0/16
+POD_CIDR=192.168.0.0/16
 echo $POD_CIDR
 
 # az network route-table create -g $RGNAME -n kubernetes-routes
