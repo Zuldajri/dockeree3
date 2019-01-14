@@ -195,6 +195,7 @@ docker run --rm -i --name ucp \
     docker/ucp:3.1.2 install \
     --controller-port $UCP_PORT \
     --san $CLUSTER_SAN \
+    --unmanaged-cni true \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
