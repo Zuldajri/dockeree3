@@ -194,7 +194,6 @@ docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
     docker/ucp:3.1.2 install \
     --san $CLUSTER_SAN \
-    --unmanaged-cni true \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
