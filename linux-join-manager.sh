@@ -29,7 +29,7 @@ apt-get install jq unzip -y
 sudo apt-get install sshpass
 
 # Send bundle.zip
-sudo sshpass -p $UCP_ADMIN_PASSWORD scp -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4:/home/$UCP_ADMIN_USERID/bundle.zip /home/$UCP_ADMIN_USERID/bundle.zip 
+sudo sshpass -p $UCP_ADMIN_PASSWORD scp -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.0.4:/home/$UCP_ADMIN_USERID/bundle.zip /home/$UCP_ADMIN_USERID/bundle.zip 
 
 #sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(docker node update --label-add com.docker.ucp.orchestrator.kubernetes=true "$(cat /home/$UCP_ADMIN_USERID/linuxWorker2ID)")"
 #sudo sshpass -p $UCP_ADMIN_PASSWORD ssh -o StrictHostKeyChecking=No $UCP_ADMIN_USERID@10.0.1.4 "$(docker node update --label-add com.docker.ucp.orchestrator.swarm=false "$(cat /home/$UCP_ADMIN_USERID/linuxWorker2ID)")"
