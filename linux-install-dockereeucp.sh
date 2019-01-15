@@ -73,21 +73,21 @@ chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin/kubectl
 
 # Azure - GET PODCIDR & Set up Route Table
-#AZ_REPO=$(lsb_release -cs)
-#echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-#sudo apt-key --keyring /etc/apt/trusted.gpg.d/Microsoft.gpg adv --keyserver packages.microsoft.com --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
-#sudo apt-get update
-#sudo apt-get install azure-cli
+AZ_REPO=$(lsb_release -cs)
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+sudo apt-key --keyring /etc/apt/trusted.gpg.d/Microsoft.gpg adv --keyserver packages.microsoft.com --recv-keys BC528686B50D79E339D3721CEB3E94ADBE1229CF
+sudo apt-get update
+sudo apt-get install azure-cli
 
-#az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
-#PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
+PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
 POD_CIDR=10.0.128.0/17
-echo $POD_CIDR
+echo $POD_CIDR $PRIVATE_IP_ADDRESS
 
-# az network route-table create -g $RGNAME -n kubernetes-routes
-# az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
-# az network route-table route create -g $RGNAME -n kubernetes-route-192-168-0-0-16 --route-table-name kubernetes-routes --address-prefix 192.168.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
+az network route-table create -g $RGNAME -n kubernetes-routes
+az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
+az network route-table route create -g $RGNAME -n kubernetes-route-podcidr --route-table-name kubernetes-routes --address-prefix 10.0.128.0/17 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
 
 
 # Create the /etc/kubernetes/azure.json
@@ -104,6 +104,7 @@ echo "location": "$LOCATION", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "subnetName": "/docker", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "securityGroupName": "ucpManager-nsg", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "vnetName": "clusterVirtualNetwork", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "routeTableName": "kubernetes-route-podcidr", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "primaryAvailabilitySetName": "clusterAvailabilitySet", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoff": false >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoffRetries": 0, >> /home/$UCP_ADMIN_USERID/azure.json
