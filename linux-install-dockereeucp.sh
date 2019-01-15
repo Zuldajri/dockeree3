@@ -89,6 +89,11 @@ az network route-table create -g $RGNAME -n kubernetes-routes
 az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
 az network route-table route create -g $RGNAME -n kubernetes-route-podcidr --route-table-name kubernetes-routes --address-prefix 10.0.128.0/17 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
 
+az network nic update --name ucpManager1NIC --ip-forwarding true --resource-group $RGNAME
+az network nic update --name dtrManagerNIC --ip-forwarding true --resource-group $RGNAME
+az network nic update --name linuxWorker1NIC --ip-forwarding true --resource-group $RGNAME
+az network nic update --name linuxWorker2NIC --ip-forwarding true --resource-group $RGNAME
+
 
 # Create the /etc/kubernetes/azure.json
 sudo mkdir /etc/kubernetes
