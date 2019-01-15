@@ -82,7 +82,7 @@ sudo mv ./kubectl /usr/local/bin/kubectl
 #az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
 #PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
-POD_CIDR=192.168.0.0/16
+POD_CIDR=10.0.0.0/16
 echo $POD_CIDR
 
 # az network route-table create -g $RGNAME -n kubernetes-routes
@@ -127,7 +127,7 @@ echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 # Create the azure_ucp_admin.toml
-#docker swarm init
+docker swarm init
 #touch /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
 #echo AZURE_CLIENT_ID = "$AZURE_CLIENT_ID" > /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
 #echo AZURE_TENANT_ID = "$AZURE_TENANT_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
@@ -193,14 +193,13 @@ echo "UCP_PORT=$UCP_PORT"
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
     docker/ucp:3.1.2 install \
-    --controller-port $UCP_PORT \
     --san $CLUSTER_SAN \
     --unmanaged-cni true \
     --san $UCP_SAN \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
     --pod-cidr $POD_CIDR \
-    --cloud-provider Azure \
+    --cloud-provider azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
 
