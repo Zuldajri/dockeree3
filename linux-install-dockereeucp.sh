@@ -260,7 +260,7 @@ wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.
 echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
 kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
 
-echo "address 10.0.1.4" >> /etc/network/interfaces.d/50-cloud-init.cfg
+echo "address 10.0.0.4" >> /etc/network/interfaces.d/50-cloud-init.cfg
 echo "netmask 10.0.0.0/16" >> /etc/network/interfaces.d/50-cloud-init.cfg
 
 sudo ifdown eth0 && sudo ifup eth0
