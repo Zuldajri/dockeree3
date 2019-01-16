@@ -233,8 +233,6 @@ docker/ucp:3.1.2 upgrade \
 --id $UCP_ID \
 --admin-username $UCP_ADMIN_USERID \
 --admin-password $UCP_ADMIN_PASSWORD \
---pod-cidr $POD_CIDR \
---cloud-provider azure \
 --debug
 
 
