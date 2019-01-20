@@ -111,7 +111,7 @@ echo "securityGroupName": "ucpManager-nsg", >> /home/$UCP_ADMIN_USERID/azure.jso
 echo "vnetName": "clusterVirtualNetwork", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "routeTableName": "kubernetes-route-podcidr", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "primaryAvailabilitySetName": "clusterAvailabilitySet", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "cloudProviderBackoff": false >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoff": false, >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoffRetries": 0, >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoffExponent": 0, >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoffDuration": 0, >> /home/$UCP_ADMIN_USERID/azure.json
