@@ -123,7 +123,7 @@ echo "useManagedIdentityExtension": false, >> /home/$UCP_ADMIN_USERID/azure.json
 echo "useInstanceMetadata": true >> /home/$UCP_ADMIN_USERID/azure.json
 echo } >> /home/$UCP_ADMIN_USERID/azure.json
 
-sudo cp /home/$UCP_ADMIN_USERID/azure.json /etc/kubernetes/
+sudo mv /home/$UCP_ADMIN_USERID/azure.json /etc/kubernetes/
 
 
 # Create the docker_subscription.lic
@@ -153,7 +153,7 @@ docker service create \
   --constraint "node.platform.os == linux" \
   docker4x/az-nic-ips
   
-wget https://packages.docker.com/caas/ucp_images_3.0.7.tar.gz -O ucp.tar.gz
+wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
 
 #Firewalling
@@ -198,7 +198,7 @@ echo "UCP_PORT=$UCP_PORT"
 # Install UCP
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    docker/ucp:3.0.7 install \
+    docker/ucp:3.1.2 install \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
     --host-address 10.0.0.4 \
@@ -223,19 +223,19 @@ docker plugin install --alias cloudstor:azure \
 
 
 # Get the UCP_ID
-UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.7 id)
+#UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
 
-wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
-docker load < ucp.tar.gz
+#wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
+#docker load < ucp.tar.gz
 
 # Upgrade UCP to 3.1.2
-docker run --rm -i --name ucp \
--v /var/run/docker.sock:/var/run/docker.sock \
-docker/ucp:3.1.2 upgrade \
---id $UCP_ID \
---admin-username $UCP_ADMIN_USERID \
---admin-password $UCP_ADMIN_PASSWORD \
---debug
+#docker run --rm -i --name ucp \
+#-v /var/run/docker.sock:/var/run/docker.sock \
+#docker/ucp:3.1.2 upgrade \
+#--id $UCP_ID \
+#--admin-username $UCP_ADMIN_USERID \
+#--admin-password $UCP_ADMIN_PASSWORD \
+#--debug
 
 
 # UBUNTU
