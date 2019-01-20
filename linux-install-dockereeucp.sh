@@ -82,12 +82,12 @@ sudo apt-get install azure-cli
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
 PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
-POD_CIDR=192.168.0.0/16
+POD_CIDR=10.0.0.0/16
 echo $POD_CIDR $PRIVATE_IP_ADDRESS
 
 az network route-table create -g $RGNAME -n kubernetes-routes
 az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
-az network route-table route create -g $RGNAME -n kubernetes-route-podcidr --route-table-name kubernetes-routes --address-prefix 192.168.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
+az network route-table route create -g $RGNAME -n kubernetes-route-podcidr --route-table-name kubernetes-routes --address-prefix 10.0.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
 
 az network nic update --name ucpManager1NIC --ip-forwarding true --resource-group $RGNAME
 az network nic update --name dtrManagerNIC --ip-forwarding true --resource-group $RGNAME
@@ -153,7 +153,7 @@ docker service create \
   --constraint "node.platform.os == linux" \
   docker4x/az-nic-ips
   
-wget https://packages.docker.com/caas/ucp_images_3.0.6.tar.gz -O ucp.tar.gz
+wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
 
 #Firewalling
@@ -198,12 +198,14 @@ echo "UCP_PORT=$UCP_PORT"
 # Install UCP
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    docker/ucp:3.0.6 install \
+    docker/ucp:3.1.2 install \
     --controller-port $UCP_PORT \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
+    --host-address 10.0.0.4 \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
+    --pod-cidr 10.0.0.0/16 \
     --cloud-provider Azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
@@ -222,19 +224,19 @@ docker plugin install --alias cloudstor:azure \
 
 
 # Get the UCP_ID
-UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
+#UCP_ID=$(docker container run --rm --name ucp -v /var/run/docker.sock:/var/run/docker.sock docker/ucp:3.0.6 id)
 
-wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
-docker load < ucp.tar.gz
+#wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
+#docker load < ucp.tar.gz
 
 # Upgrade UCP to 3.1.2
-docker run --rm -i --name ucp \
--v /var/run/docker.sock:/var/run/docker.sock \
-docker/ucp:3.1.2 upgrade \
---id $UCP_ID \
---admin-username $UCP_ADMIN_USERID \
---admin-password $UCP_ADMIN_PASSWORD \
---debug
+#docker run --rm -i --name ucp \
+#-v /var/run/docker.sock:/var/run/docker.sock \
+#docker/ucp:3.1.2 upgrade \
+#--id $UCP_ID \
+#--admin-username $UCP_ADMIN_USERID \
+#--admin-password $UCP_ADMIN_PASSWORD \
+#--debug
 
 
 # UBUNTU
