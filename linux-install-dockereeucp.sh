@@ -123,7 +123,7 @@ echo "useManagedIdentityExtension": false, >> /home/$UCP_ADMIN_USERID/azure.json
 echo "useInstanceMetadata": true >> /home/$UCP_ADMIN_USERID/azure.json
 echo } >> /home/$UCP_ADMIN_USERID/azure.json
 
-sudo mv /home/$UCP_ADMIN_USERID/azure.json /etc/kubernetes/
+sudo cp /home/$UCP_ADMIN_USERID/azure.json /etc/kubernetes/
 
 
 # Create the docker_subscription.lic
