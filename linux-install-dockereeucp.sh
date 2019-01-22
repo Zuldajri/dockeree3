@@ -82,12 +82,12 @@ sudo apt-get install azure-cli
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
 PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
-POD_CIDR=10.0.0.0/16
+POD_CIDR=10.0.128.0/17
 echo $POD_CIDR $PRIVATE_IP_ADDRESS
 
 az network route-table create -g $RGNAME -n kubernetes-routes
 az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
-az network route-table route create -g $RGNAME -n kubernetes-route-podcidr --route-table-name kubernetes-routes --address-prefix 10.0.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
+az network route-table route create -g $RGNAME -n kubernetes-route-podcidr --route-table-name kubernetes-routes --address-prefix 10.0.128.0/17 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
 
 az network nic update --name ucpManager1NIC --ip-forwarding true --resource-group $RGNAME
 az network nic update --name dtrManagerNIC --ip-forwarding true --resource-group $RGNAME
@@ -204,7 +204,7 @@ docker run --rm -i --name ucp \
     --host-address 10.0.0.4 \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
-    --pod-cidr 10.0.0.0/16 \
+    --pod-cidr 10.0.128.0/17 \
     --cloud-provider Azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
