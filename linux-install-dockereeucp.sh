@@ -153,7 +153,7 @@ chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 #  --constraint "node.platform.os == linux" \
 #  docker4x/az-nic-ips
   
-wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
+wget https://packages.docker.com/caas/ucp_images_3.0.7.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
 
 #Firewalling
@@ -198,7 +198,7 @@ echo "UCP_PORT=$UCP_PORT"
 # Install UCP
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    docker/ucp:3.1.2 install \
+    docker/ucp:3.0.7 install \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
     --host-address 10.0.0.4 \
