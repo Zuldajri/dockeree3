@@ -133,25 +133,25 @@ echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 # Create the azure_ucp_admin.toml
-docker swarm init
-touch /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_CLIENT_ID = "$AZURE_CLIENT_ID" > /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_TENANT_ID = "$AZURE_TENANT_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_SUBSCRIPTION_ID = "$AZURE_SUBSCRIPTION_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
-echo AZURE_CLIENT_SECRET = "$AZURE_CLIENT_SECRET" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+#docker swarm init
+#touch /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+#echo AZURE_CLIENT_ID = "$AZURE_CLIENT_ID" > /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+#echo AZURE_TENANT_ID = "$AZURE_TENANT_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+#echo AZURE_SUBSCRIPTION_ID = "$AZURE_SUBSCRIPTION_ID" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+#echo AZURE_CLIENT_SECRET = "$AZURE_CLIENT_SECRET" >> /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
 
 # Create the Secret and the Service
-docker secret create azure_ucp_admin.toml /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
+#docker secret create azure_ucp_admin.toml /home/$UCP_ADMIN_USERID/azure_ucp_admin.toml
 
-docker service create \
-  --mode=global \
-  --secret=azure_ucp_admin.toml \
-  --log-driver json-file \
-  --log-opt max-size=1m \
-  --env IP_COUNT=128 \
-  --name ipallocator \
-  --constraint "node.platform.os == linux" \
-  docker4x/az-nic-ips
+#docker service create \
+#  --mode=global \
+#  --secret=azure_ucp_admin.toml \
+#  --log-driver json-file \
+#  --log-opt max-size=1m \
+#  --env IP_COUNT=128 \
+#  --name ipallocator \
+#  --constraint "node.platform.os == linux" \
+#  docker4x/az-nic-ips
   
 wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
@@ -180,7 +180,7 @@ sudo ufw allow 12386/tcp
 sudo ufw allow 12387/tcp
 sudo ufw allow 12388/tcp
 
-iptables -t nat -A POSTROUTING -m iprange ! --dst-range 168.63.129.16 -m addrtype ! --dst-type local ! -d 10.0.0.0/16 -j MASQUERADE
+#iptables -t nat -A POSTROUTING -m iprange ! --dst-range 168.63.129.16 -m addrtype ! --dst-type local ! -d 10.0.0.0/16 -j MASQUERADE
 
 # Split the UCP FQDN et get the SAN and the port
 
