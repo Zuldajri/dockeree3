@@ -39,7 +39,7 @@ curl -fsSL ${DOCKEREE_DOWNLOAD_URL}/ubuntu/gpg | sudo apt-key add -
 sudo apt-key fingerprint 6D085F96
 sudo add-apt-repository "deb [arch=amd64] ${DOCKEREE_DOWNLOAD_URL}/ubuntu $(lsb_release -cs) stable-18.09"
 sudo apt-get update -y
-sudo apt-get install -y docker-ee=5:18.09.1~3-0~ubuntu-xenial
+sudo apt-get install -y docker-ee=5:18.09.3~3-0~ubuntu-xenial docker-ee-cli=5:18.09.3~3-0~ubuntu-xenial containerd.io
 
 #Firewalling
 sudo ufw allow 80/tcp
@@ -52,12 +52,12 @@ sudo ufw allow 10250/tcp
 sudo ufw allow 12376/tcp
 sudo ufw allow 12378/tcp
 
-iptables -t nat -A POSTROUTING -m iprange ! --dst-range 168.63.129.16 -m addrtype ! --dst-type local ! -d 10.0.0.0/16 -j MASQUERADE
+#iptables -t nat -A POSTROUTING -m iprange ! --dst-range 168.63.129.16 -m addrtype ! --dst-type local ! -d 10.0.0.0/16 -j MASQUERADE
 
-echo "address $HOST_IP_ADDRESS" >> /etc/network/interfaces.d/50-cloud-init.cfg
-echo "netmask 10.0.0.0/16" >> /etc/network/interfaces.d/50-cloud-init.cfg
+#echo "address $HOST_IP_ADDRESS" >> /etc/network/interfaces.d/50-cloud-init.cfg
+#echo "netmask 10.0.0.0/16" >> /etc/network/interfaces.d/50-cloud-init.cfg
 
-sudo ifdown eth0 && sudo ifup eth0
+#sudo ifdown eth0 && sudo ifup eth0
 
 
 
