@@ -48,7 +48,7 @@ curl -fsSL ${DOCKEREE_DOWNLOAD_URL}/ubuntu/gpg | sudo apt-key add -
 sudo apt-key fingerprint 6D085F96
 sudo add-apt-repository "deb [arch=amd64] ${DOCKEREE_DOWNLOAD_URL}/ubuntu $(lsb_release -cs) stable-18.09"
 sudo apt-get update -y
-sudo apt-get install -y docker-ee=5:18.09.1~3-0~ubuntu-xenial
+sudo apt-get install -y docker-ee=5:18.09.3~3-0~ubuntu-xenial docker-ee-cli=5:18.09.3~3-0~ubuntu-xenial containerd.io
 
 
 # Post Installation configuration (all Linux distros)
@@ -64,7 +64,7 @@ systemctl start docker
 install_docker;
 
 # Set the Kubernetes version as found in the UCP Dashboard or API
-k8sversion=v1.11.2
+k8sversion=v1.11.7
 # Get the kubectl binary.
 curl -LO https://storage.googleapis.com/kubernetes-release/release/$k8sversion/bin/linux/amd64/kubectl
 # Make the kubectl binary executable.
@@ -81,21 +81,17 @@ sudo apt-get install azure-cli
 
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
-PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
+#PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
 POD_CIDR=10.0.0.0/16
-echo $POD_CIDR $PRIVATE_IP_ADDRESS
+#echo $POD_CIDR $PRIVATE_IP_ADDRESS
 
-az network route-table create -g $RGNAME -n kubernetes-routes
-az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
-az network route-table route create -g $RGNAME -n kubernetes-route-podcidr --route-table-name kubernetes-routes --address-prefix 10.0.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
-
-az network nic update --name ucpManager1NIC --ip-forwarding true --resource-group $RGNAME
-az network nic update --name dtrManagerNIC --ip-forwarding true --resource-group $RGNAME
-az network nic update --name linuxWorker1NIC --ip-forwarding true --resource-group $RGNAME
-az network nic update --name linuxWorker2NIC --ip-forwarding true --resource-group $RGNAME
+#az network route-table create -g $RGNAME -n kubernetes-routes
+#az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
+#az network route-table route create -g $RGNAME -n kubernetes-route-podcidr --route-table-name kubernetes-routes --address-prefix 10.0.0.0/16 --next-hop-ip-address $PRIVATE_IP_ADDRESS --next-hop-type VirtualAppliance
 
 
 # Create the /etc/kubernetes/azure.json
+#echo "routeTableName": "kubernetes-route-podcidr", >> /home/$UCP_ADMIN_USERID/azure.json
 sudo mkdir /etc/kubernetes
 touch /home/$UCP_ADMIN_USERID/azure.json
 echo { > /home/$UCP_ADMIN_USERID/azure.json
@@ -109,7 +105,6 @@ echo "location": "$LOCATION", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "subnetName": "/docker", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "securityGroupName": "ucpManager-nsg", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "vnetName": "clusterVirtualNetwork", >> /home/$UCP_ADMIN_USERID/azure.json
-echo "routeTableName": "kubernetes-route-podcidr", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "primaryAvailabilitySetName": "clusterAvailabilitySet", >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoff": false, >> /home/$UCP_ADMIN_USERID/azure.json
 echo "cloudProviderBackoffRetries": 0, >> /home/$UCP_ADMIN_USERID/azure.json
@@ -153,7 +148,7 @@ chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
 #  --constraint "node.platform.os == linux" \
 #  docker4x/az-nic-ips
   
-wget https://packages.docker.com/caas/ucp_images_3.1.2.tar.gz -O ucp.tar.gz
+wget https://packages.docker.com/caas/ucp_images_3.1.4.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
 
 #Firewalling
@@ -198,9 +193,9 @@ echo "UCP_PORT=$UCP_PORT"
 # Install UCP
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    docker/ucp:3.1.2 install \
-    --san $CLUSTER_SAN \
-    --san $UCP_SAN \
+    docker/ucp:3.1.4 install \
+#    --san $CLUSTER_SAN \
+#    --san $UCP_SAN \
     --host-address 10.0.0.4 \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
