@@ -82,7 +82,7 @@ sudo apt-get install azure-cli
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
 #PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
-POD_CIDR=10.0.0.0/16
+POD_CIDR=10.0.2.0/16
 #echo $POD_CIDR $PRIVATE_IP_ADDRESS
 
 #az network route-table create -g $RGNAME -n kubernetes-routes
@@ -196,10 +196,10 @@ docker run --rm -i --name ucp \
     docker/ucp:3.1.4 install \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
-    --host-address 10.0.0.4 \
+#    --host-address 10.0.0.4 \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
-    --pod-cidr 10.0.0.0/16 \
+    --pod-cidr 10.0.2.0/16 \
     --cloud-provider Azure \
     --license "$(cat /home/$UCP_ADMIN_USERID/docker_subscription.lic)" \
     --debug
