@@ -80,6 +80,7 @@ sudo apt-get update
 sudo apt-get install azure-cli
 
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+az account set -s $AZURE_SUBSCRIPTION_ID
 
 #PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
 POD_CIDR=10.0.0.0/16
