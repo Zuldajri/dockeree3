@@ -196,7 +196,7 @@ docker run --rm -i --name ucp \
     docker/ucp:3.1.4 install \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
-#    --host-address 10.0.0.4 \
+    --host-address 10.0.0.4 \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
     --pod-cidr 10.0.2.0/16 \
