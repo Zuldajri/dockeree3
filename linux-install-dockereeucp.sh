@@ -194,8 +194,8 @@ echo "UCP_PORT=$UCP_PORT"
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
     docker/ucp:3.1.4 install \
-#    --san $CLUSTER_SAN \
-#    --san $UCP_SAN \
+    --san $CLUSTER_SAN \
+    --san $UCP_SAN \
     --host-address 10.0.0.4 \
     --admin-username $UCP_ADMIN_USERID \
     --admin-password $UCP_ADMIN_PASSWORD \
