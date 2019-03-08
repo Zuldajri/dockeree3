@@ -80,28 +80,10 @@ sudo apt-get update
 sudo apt-get install azure-cli
 
 az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-az account set -s $AZURE_SUBSCRIPTION_ID
 
 #PRIVATE_IP_ADDRESS=$(az vm show -d -g $RGNAME -n linuxWorker1 --query "privateIps" -otsv)
 POD_CIDR=10.0.0.0/16
 #echo $POD_CIDR $PRIVATE_IP_ADDRESS
-az network nic ip-config create \
---resource-group $RGNAME \
---nic-name ucpmanager1NIC \
---name IPConfig-2 \
---private-ip-address 10.0.1.4 \
-
-az network nic ip-config create \
---resource-group $RGNAME \
---nic-name ucpmanager1NIC \
---name IPConfig-3 \
---private-ip-address 10.0.1.5 \
-
-az network nic ip-config create \
---resource-group $RGNAME \
---nic-name ucpmanager1NIC \
---name IPConfig-4 \
---private-ip-address 10.0.1.6 \
 
 
 #az network route-table create -g $RGNAME -n kubernetes-routes
