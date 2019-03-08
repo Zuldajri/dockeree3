@@ -17,6 +17,12 @@ echo "UCP_PUBLIC_FQDN=$UCP_PUBLIC_FQDN"
 echo "UCP_ADMIN_USERID=$UCP_ADMIN_USERID"
 echo "DTR_PUBLIC_FQDN=$DTR_PUBLIC_FQDN"
 echo "HOST_IP_ADDRESS=$HOST_IP_ADDRESS"
+echo "AZURE_TENANT_ID=$AZURE_TENANT_ID"
+echo "AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID"
+echo "AZURE_CLIENT_ID=$AZURE_CLIENT_ID"
+echo "AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET"
+echo "RGNAME=$RGNAME"
+echo "LOCATION=$LOCATION"
 
 install_docker()
 {
@@ -51,6 +57,34 @@ sudo ufw allow 7946/tcp
 sudo ufw allow 10250/tcp
 sudo ufw allow 12376/tcp
 sudo ufw allow 12378/tcp
+
+# Create the /etc/kubernetes/azure.json
+sudo mkdir /etc/kubernetes
+touch /home/$UCP_ADMIN_USERID/azure.json
+echo { > /home/$UCP_ADMIN_USERID/azure.json
+echo "cloud": "AzurePublicCloud", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "tenantId": "$AZURE_TENANT_ID", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "subscriptionId": "$AZURE_SUBSCRIPTION_ID", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "aadClientId": "$AZURE_CLIENT_ID", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "aadClientSecret": "$AZURE_CLIENT_SECRET", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "resourceGroup": "$RGNAME", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "location": "$LOCATION", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "subnetName": "/docker", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "securityGroupName": "ucpManager-nsg", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "vnetName": "clusterVirtualNetwork", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "primaryAvailabilitySetName": "clusterAvailabilitySet", >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoff": false, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoffRetries": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoffExponent": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoffDuration": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderBackoffJitter": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderRatelimit": false, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderRateLimitQPS": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "cloudProviderRateLimitBucket": 0, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "useManagedIdentityExtension": false, >> /home/$UCP_ADMIN_USERID/azure.json
+echo "useInstanceMetadata": true >> /home/$UCP_ADMIN_USERID/azure.json
+echo } >> /home/$UCP_ADMIN_USERID/azure.json
+sudo mv /home/$UCP_ADMIN_USERID/azure.json /etc/kubernetes/
 
 #iptables -t nat -A POSTROUTING -m iprange ! --dst-range 168.63.129.16 -m addrtype ! --dst-type local ! -d 10.0.0.0/16 -j MASQUERADE
 
