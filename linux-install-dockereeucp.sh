@@ -102,6 +102,18 @@ az network nic ip-config create \
 --name IPConfig-4 \
 --private-ip-address 10.0.1.7 \
 
+az network nic ip-config create \
+--resource-group $RGNAME \
+--nic-name ucpmanager1NIC \
+--name IPConfig-5 \
+--private-ip-address 10.0.1.8 \
+
+az network nic ip-config create \
+--resource-group $RGNAME \
+--nic-name ucpmanager1NIC \
+--name IPConfig-6 \
+--private-ip-address 10.0.1.9 \
+
 
 #az network route-table create -g $RGNAME -n kubernetes-routes
 #az network vnet subnet update -g $RGNAME -n docker --vnet-name clusterVirtualNetwork --route-table kubernetes-routes
