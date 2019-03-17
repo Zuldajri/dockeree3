@@ -125,15 +125,6 @@ if($netAssembly)
 #    Move-Item ".\ws2016.vhd" "$UserDesktopPath\ws2016.vhd" -Force
 }
 
-
-function Install-Keyboards ()
-{
-     New-Item -Path "$UserDesktopPath\keyboard-french-mac" -ItemType Directory -Force
-     Expand-Archive -Path keyboard-french-mac.zip -DestinationPath "$UserDesktopPath\keyboard-french-mac" -Force
-     Start-Process -FilePath "$UserDesktopPath\keyboard-french-mac\setup.exe" -ArgumentList "/a"
-}
-
-
 #Start Script
 
 $ErrorActionPreference = "Stop"
@@ -150,9 +141,6 @@ try
     Write-Host "UCPURI = $UCPURI"
     Write-Host "DTRURI = $DTRURI"
     Write-Host "SWARMMGRIP = $SWARMMGRIP"
-
-    Write-Host "Install additional Keyboards"
-    Install-Keyboards
 
     Write-Host "Upgrading Docker Engine"
     Install-LatestDockerEngine
