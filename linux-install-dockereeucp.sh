@@ -283,14 +283,14 @@ unzip /home/$UCP_ADMIN_USERID/bundle.zip && chmod +x /var/lib/waagent/custom-scr
 #wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/rbac-kdd.yaml -O /home/$UCP_ADMIN_USERID/rbac-kdd.yaml
 #kubectl apply -f /home/$UCP_ADMIN_USERID/rbac-kdd.yaml
 
-#kubectl create -f https://raw.githubusercontent.com/Zuldajri/DockerEE/master/nfs-server.yaml
-#sleep 2m
+kubectl create -f https://raw.githubusercontent.com/Zuldajri/DockerEE/master/nfs-server.yaml
+sleep 2m
 
-#IP=$(kubectl describe pod nfs-server | grep IP: | awk 'NR==1 {print $2}')
+IP=$(kubectl describe pod nfs-server | grep IP: | awk 'NR==1 {print $2}')
 
-#wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.yaml -O /home/$UCP_ADMIN_USERID/default-storage.yaml
-#echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
-#kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
+wget https://raw.githubusercontent.com/Zuldajri/DockerEE/master/default-storage.yaml -O /home/$UCP_ADMIN_USERID/default-storage.yaml
+echo "  server": "$IP" >> /home/$UCP_ADMIN_USERID/default-storage.yaml
+kubectl create -f /home/$UCP_ADMIN_USERID/default-storage.yaml
 
 #echo "address 10.0.0.4" >> /etc/network/interfaces.d/50-cloud-init.cfg
 #echo "netmask 10.0.0.0/16" >> /etc/network/interfaces.d/50-cloud-init.cfg
