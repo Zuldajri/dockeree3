@@ -27,17 +27,6 @@ echo "LOCATION=$LOCATION"
 install_docker()
 {
 
-# CENTOS
-
-# echo ${DOCKEREE_DOWNLOAD_URL}"/centos" > /etc/yum/vars/dockerurl
-# yum install -y yum-utils device-mapper-persistent-data lvm2
-# yum-config-manager \
-#    --add-repo \
-#    ${DOCKEREE_DOWNLOAD_URL}/centos/docker-ee.repo
-
-# yum makecache fast
-# yum install -y docker-ee
-
 # UBUNTU
 
 sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
@@ -85,16 +74,6 @@ echo "useManagedIdentityExtension": false, >> /home/$UCP_ADMIN_USERID/azure.json
 echo "useInstanceMetadata": true >> /home/$UCP_ADMIN_USERID/azure.json
 echo } >> /home/$UCP_ADMIN_USERID/azure.json
 sudo mv /home/$UCP_ADMIN_USERID/azure.json /etc/kubernetes/
-
-#iptables -t nat -A POSTROUTING -m iprange ! --dst-range 168.63.129.16 -m addrtype ! --dst-type local ! -d 10.0.0.0/16 -j MASQUERADE
-
-#echo "address $HOST_IP_ADDRESS" >> /etc/network/interfaces.d/50-cloud-init.cfg
-#echo "netmask 10.0.0.0/16" >> /etc/network/interfaces.d/50-cloud-init.cfg
-
-#sudo ifdown eth0 && sudo ifup eth0
-
-
-
 
 # Post Installation configuration (all Linux distros)
 
