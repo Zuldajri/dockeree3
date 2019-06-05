@@ -120,7 +120,7 @@ echo $DOCKER_SUBSCRIPTION > /home/$UCP_ADMIN_USERID/docker_subscription.lic
 
 chmod 777 /home/$UCP_ADMIN_USERID/docker_subscription.lic
   
-wget https://packages.docker.com/caas/ucp_images_3.1.4.tar.gz -O ucp.tar.gz
+wget https://packages.docker.com/caas/ucp_images_3.1.7.tar.gz -O ucp.tar.gz
 docker load < ucp.tar.gz
 
 #Firewalling
@@ -163,7 +163,7 @@ echo "UCP_PORT=$UCP_PORT"
 # Install UCP
 docker run --rm -i --name ucp \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    docker/ucp:3.1.4 install \
+    docker/ucp:3.1.7 install \
     --san $CLUSTER_SAN \
     --san $UCP_SAN \
     --host-address 10.0.1.4 \
@@ -178,7 +178,7 @@ docker run --rm -i --name ucp \
 # Add the Azure Storage Volume Driver
 
 docker plugin install --alias cloudstor:azure \
-  --grant-all-permissions docker4x/cloudstor:18.06.1-ce-azure1  \
+  --grant-all-permissions docker4x/cloudstor:18.09.2-ce-azure1  \
   CLOUD_PLATFORM=AZURE \
   AZURE_STORAGE_ACCOUNT_KEY=$AZURE_STORAGE_ACCOUNT_KEY \
   AZURE_STORAGE_ACCOUNT=$AZURE_STORAGE_ACCOUNT_NAME \
