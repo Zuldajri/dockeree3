@@ -63,7 +63,7 @@ systemctl start docker
 install_docker;
 
 # Set the Kubernetes version as found in the UCP Dashboard or API
-k8sversion=v1.11.7
+k8sversion=v1.14.3
 # Get the kubectl binary.
 curl -LO https://storage.googleapis.com/kubernetes-release/release/$k8sversion/bin/linux/amd64/kubectl
 # Make the kubectl binary executable.
