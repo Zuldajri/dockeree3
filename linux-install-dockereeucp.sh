@@ -46,7 +46,7 @@ install_docker()
 sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 curl -fsSL ${DOCKEREE_DOWNLOAD_URL}/ubuntu/gpg | sudo apt-key add -
 sudo apt-key fingerprint 6D085F96
-sudo add-apt-repository "deb [arch=amd64] ${DOCKEREE_DOWNLOAD_URL}/ubuntu $(lsb_release -cs) stable-18.09"
+sudo add-apt-repository "deb [arch=amd64] ${DOCKEREE_DOWNLOAD_URL}/ubuntu $(lsb_release -cs) stable-19.03"
 sudo apt-get update -y
 sudo apt-get install -y docker-ee=5:19.03.0~3-0~ubuntu-xenial docker-ee-cli=5:19.03.0~3-0~ubuntu-xenial containerd.io
 
