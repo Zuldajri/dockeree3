@@ -5,7 +5,7 @@
 Param(
   [switch] $SkipEngineUpgrade,
   [string] $ArtifactPath = ".",
-  [string] $DockerEngineURI = "https://dockermsft.blob.core.windows.net/dockercontainer/docker-19-03-0.zip",
+  [string] $DockerEngineURI = "https://dockermsft.blob.core.windows.net/dockercontainer/docker-19-03-1.zip",
   [string] $USERNAME,
   [string] $PASSWORD,
   [string] $UCPURI,
